@@ -16,8 +16,9 @@ import music as MU
 from scipy import signal
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-B = lambda *p: os.path.join(ROOT, 'build', *p)
-O = lambda *p: os.path.join(ROOT, 'out', *p)
+TAG = os.environ.get('TAG', '')
+B = lambda *p: os.path.join(ROOT, 'build' + ('_' + TAG if TAG else ''), *p)
+O = lambda *p: os.path.join(ROOT, 'out' + ('/' + TAG if TAG else ''), *p)
 os.makedirs(B(), exist_ok=True); os.makedirs(O(), exist_ok=True)
 SR = 48000
 TARGET = float(os.environ.get('TARGET_SECONDS', 78.0))
@@ -308,6 +309,16 @@ for i, s in enumerate(script):
         elif ty == 'buzz': add(mix_sfx, t, MU.buzz(fx.get('dur', 1.6)))
         elif ty == 'boom': add(mix_sfx, t, MU.boom(), 0.8)
         elif ty == 'pop': add(mix_sfx, t, MU.pop())
+        elif ty == 'siren': add(mix_sfx, t, MU.siren(fx.get('dur', 1.6)))
+        elif ty == 'thuds': add(mix_sfx, t, MU.thuds())
+        elif ty == 'ratchet':
+            for k in range(fx.get('n', 1)): add(mix_sfx, t + k * fx.get('every', 0.6), MU.ratchet())
+        elif ty == 'ticktock': add(mix_sfx, t, MU.ticktock(fx.get('dur', 2.0)))
+        elif ty == 'clunk': add(mix_sfx, t, MU.clunk())
+        elif ty == 'rumble': add(mix_sfx, t, MU.rumble(fx.get('dur', 2.5)))
+        elif ty == 'bark': add(mix_sfx, t, MU.bark())
+        elif ty == 'alarm': add(mix_sfx, t, MU.alarm(fx.get('dur', 1.4)))
+        elif ty == 'splash': add(mix_sfx, t, MU.splash())
         elif ty == 'silence': mutes.append((t, t + fx.get('dur', 0.5)))
 
 # original score: per-shot moods crossfaded (see tools/music.py)

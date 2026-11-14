@@ -227,3 +227,78 @@ def boom():
 def pop():
     n = int(0.12 * SR); t = np.arange(n) / SR; f = 600 * np.exp(-t / 0.03) + 300
     return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.001, 0.04) * 0.6
+
+
+# ---------- v3 additions ----------
+def heroic_stem(N):
+    return day_stem(N, bpm=128)
+
+
+def siren(d=1.6):
+    n = int(d * SR); t = np.arange(n) / SR
+    f = 620 + 260 * np.sin(2 * np.pi * 1.6 * t)
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.3 * np.sin(2 * np.pi * np.cumsum(f * 2) / SR)
+    return lp(x, 3000) * np.clip(t / 0.08, 0, 1) * np.clip((d - t) / 0.2, 0, 1) * 0.45
+
+
+def thuds(n=7, spread=0.5):
+    out = np.zeros(int((spread + 0.6) * SR))
+    for k in range(n): place(out, rng.uniform(0, spread), tom(rng.uniform(45, 80)), rng.uniform(0.4, 0.9))
+    return lp(out, 900)
+
+
+def ratchet():
+    out = np.zeros(int(0.5 * SR))
+    for k in range(6): place(out, k * 0.05, hp(rng.standard_normal(int(0.02 * SR)), 1500) * env(int(0.02 * SR), 0.0005, 0.006), 0.6)
+    place(out, 0.32, tom(140), 0.5)
+    return out
+
+
+def ticktock(d=2.0):
+    out = np.zeros(int(d * SR))
+    for k in range(int(d / 0.5)):
+        n = int(0.05 * SR); t = np.arange(n) / SR
+        place(out, k * 0.5, np.sin(2 * np.pi * (2400 if k % 2 else 1700) * t) * env(n, 0.0005, 0.01), 0.5)
+    return out
+
+
+def clunk():
+    return lp(tom(70) + 0.6 * bp(rng.standard_normal(int(0.3 * SR)), 300, 2000) * env(int(0.3 * SR), 0.001, 0.05), 2500)
+
+
+def rumble(d=2.5):
+    n = int(d * SR); t = np.arange(n) / SR
+    return lp(rng.standard_normal(n), 120) * 3 * np.clip(t / 0.4, 0, 1) * np.clip((d - t) / 0.4, 0, 1)
+
+
+def bark():
+    out = np.zeros(int(0.5 * SR))
+    for k in range(2):
+        n = int(0.12 * SR); t = np.arange(n) / SR; f = 520 - 900 * t
+        x = (2 * ((np.cumsum(f) / SR) % 1) - 1); x = bp(x, 300, 2500) * env(n, 0.003, 0.05)
+        place(out, k * 0.2, x, 0.8)
+    return out
+
+
+def alarm(d=1.4):
+    n = int(d * SR); t = np.arange(n) / SR
+    x = np.sign(np.sin(2 * np.pi * 880 * t)) * (np.sin(2 * np.pi * 4 * t) > 0)
+    return lp(x, 2500) * 0.25
+
+
+def splash():
+    n = int(1.0 * SR); t = np.arange(n) / SR
+    return bp(rng.standard_normal(n), 400, 6000) * np.exp(-t / 0.25) * 0.8 + lp(tom(60), 400) * 0.6 * np.pad(np.ones(1), (0, n - 1))[:n] if False else bp(rng.standard_normal(n), 400, 6000) * np.exp(-t / 0.25) * 0.8
+
+
+MOODS['heroic'] = {'heroic': 0.55}
+_score_orig = score
+
+
+def score(N, starts, durs, moods, xfade=0.12):  # noqa: F811  (adds the heroic stem)
+    out = _score_orig(N, starts, durs, moods, xfade)
+    if 'heroic' in moods:
+        x = norm(heroic_stem(N)); g = np.zeros(N); k = int(xfade * SR)
+        for s, d, m in zip(starts, durs, moods): g[int(s * SR):int((s + d) * SR)] = 0.55 if m == 'heroic' else 0
+        out += x * np.convolve(g, np.ones(k) / k, mode='same')
+    return out

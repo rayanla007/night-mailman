@@ -2,3 +2,5 @@ node_modules/
 build/
 tools/piper/
 out/check/
+build_*/
+out/*/check/

@@ -67,6 +67,8 @@ function drawFace(expr, opts = {}) {
     case 'none': break;
     default: eye(L, EY); eye(R, EY); quad(0.43 * S, 0.68 * S, 0.5 * S, 0.7 * S, 0.57 * S, 0.68 * S, 0.026); blush(0.25);
   }
+  if (opts.glasses) { stroke(0.022, '#2a2230'); for (const x of [L, R]) { g.beginPath(); g.arc(x, EY, 0.105 * S, 0, Math.PI * 2); g.stroke(); } path([[L + 0.105 * S, EY], [R - 0.105 * S, EY]], 0.02, '#2a2230'); }
+  if (opts.beard) { g.fillStyle = opts.beard; g.beginPath(); g.moveTo(0.3 * S, 0.6 * S); g.quadraticCurveTo(0.5 * S, 0.56 * S, 0.7 * S, 0.6 * S); g.quadraticCurveTo(0.6 * S, 0.66 * S, 0.5 * S, 0.62 * S); g.quadraticCurveTo(0.4 * S, 0.66 * S, 0.3 * S, 0.6 * S); g.fill(); }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 4;
@@ -89,6 +91,13 @@ function shirtPrint(kind, base) {
     g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(122, 0, 12, 160);
     g.fillStyle = '#f2e9d8'; for (const y of [30, 70, 110, 148]) { g.beginPath(); g.arc(142, y, 7, 0, 7); g.fill(); }
     g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(90, 0); g.lineTo(128, 50); g.lineTo(166, 0); g.fill();
+  } else if (kind === 'mayor') {
+    g.strokeStyle = '#e8233c'; g.lineWidth = 34; g.beginPath(); g.moveTo(40, -10); g.lineTo(220, 170); g.stroke();
+    g.fillStyle = '#ffd23a'; g.beginPath(); g.arc(128, 70, 22, 0, 7); g.fill(); g.fillStyle = '#e0a800'; g.beginPath(); g.arc(128, 70, 12, 0, 7); g.fill();
+    g.strokeStyle = '#ffd23a'; g.lineWidth = 6; g.beginPath(); g.moveTo(80, 0); g.lineTo(128, 50); g.lineTo(176, 0); g.stroke();
+  } else if (kind === 'overalls') {
+    g.fillStyle = '#2f6fe0'; g.fillRect(60, 70, 136, 90); g.fillRect(70, 0, 22, 80); g.fillRect(164, 0, 22, 80);
+    g.fillStyle = '#ffd23a'; g.beginPath(); g.arc(81, 72, 7, 0, 7); g.arc(175, 72, 7, 0, 7); g.fill();
   } else if (kind === 'pj') { for (let i = 0; i < 14; i++) star(20 + (i * 71) % 230, 18 + ((i * 47) % 130), 11, '#ffffff'); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
@@ -197,7 +206,7 @@ export function makeCharacter(o = {}) {
   // face decal
   const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(headW * 0.9, headH * 0.9),
     opt.silhouette ? new THREE.MeshBasicMaterial({ map: drawFace('glow'), transparent: true, depthWrite: false })
-      : new THREE.MeshStandardMaterial({ map: drawFace(opt.face), transparent: true, depthWrite: false, roughness: 0.6 }));
+      : new THREE.MeshStandardMaterial({ map: drawFace(opt.face, opt.faceOpts || {}), transparent: true, depthWrite: false, roughness: 0.6 }));
   faceMesh.position.set(0, 0, headD / 2 + 0.003); faceMesh.renderOrder = 2;
   head.add(faceMesh);
   const faceCache = {};
@@ -251,6 +260,34 @@ export function makeCharacter(o = {}) {
       hb(headW + 0.08, 0.13, headD + 0.08, 0, top + 0.05, 0, mHat);            // flat cap
       hb(headW + 0.04, 0.05, 0.2, 0, top + 0.01, headD / 2 + 0.08, mHat);      // brim
       break;
+    case 'ivy':
+      hb(headW + 0.06, 0.14, headD + 0.06, 0, top + 0.03, 0);
+      hb(headW + 0.06, 0.3, 0.12, 0, top - 0.12, -headD / 2 - 0.03);
+      hb(0.1, 0.36, headD * 0.8, headW / 2 + 0.03, top - 0.15, -0.04); hb(0.1, 0.36, headD * 0.8, -headW / 2 - 0.03, top - 0.15, -0.04);
+      hb(headW * 0.8, 0.11, 0.08, 0.04, top - 0.05, headD / 2 + 0.02);
+      { const tail = hb(0.2, 0.5, 0.2, 0, top - 0.25, -headD / 2 - 0.16, mHair, 0.08); tail.rotation.x = 0.35; }
+      hb(0.12, 0.12, 0.14, 0, top - 0.02, -headD / 2 - 0.08, mat('#ffd23a', 'tie'));
+      break;
+    case 'bo':
+      hb(headW + 0.05, 0.12, headD + 0.05, 0, top + 0.02, 0);
+      hb(0.18, 0.14, 0.18, -0.1, top + 0.12, 0.05); hb(0.16, 0.12, 0.16, 0.12, top + 0.1, -0.08);
+      hb(headW + 0.05, 0.12, 0.08, 0, top - 0.04, headD / 2 + 0.01);
+      break;
+    case 'gus':
+      hb(0.1, 0.24, headD * 0.85, headW / 2 + 0.03, top - 0.16, -0.03); hb(0.1, 0.24, headD * 0.85, -headW / 2 - 0.03, top - 0.16, -0.03);
+      hb(headW + 0.04, 0.26, 0.08, 0, top - 0.15, -headD / 2 - 0.02);
+      hb(0.16, 0.1, 0.12, -0.12, top + 0.02, 0.02); hb(0.12, 0.08, 0.1, 0.1, top + 0.01, -0.06);
+      break;
+    case 'toupee':
+      hb(0.08, 0.2, headD * 0.8, headW / 2 + 0.02, top - 0.16, -0.04); hb(0.08, 0.2, headD * 0.8, -headW / 2 - 0.02, top - 0.16, -0.04);
+      { const tp = new THREE.Group(); tp.position.set(0, top + 0.05, 0); head.add(tp);
+        const a = new THREE.Mesh(rbox(headW + 0.06, 0.14, headD + 0.04, 0.05), mHair); a.castShadow = true; tp.add(a);
+        const b = new THREE.Mesh(rbox(0.3, 0.12, 0.2, 0.05), mHair); b.position.set(0.12, 0.08, 0.12); b.rotation.z = -0.3; tp.add(b);
+        parts.toupee = tp; }
+      break;
+    case 'crowd1': hb(headW + 0.05, 0.13, headD + 0.05, 0, top + 0.03, 0); hb(headW + 0.05, 0.2, 0.08, 0, top - 0.08, -headD / 2 - 0.01); break;
+    case 'crowd2': hb(headW + 0.06, 0.14, headD + 0.06, 0, top + 0.03, 0); hb(headW + 0.06, 0.5, 0.12, 0, top - 0.26, -headD / 2 - 0.04); hb(0.1, 0.42, headD * 0.8, headW / 2 + 0.03, top - 0.18, -0.06); hb(0.1, 0.42, headD * 0.8, -headW / 2 - 0.03, top - 0.18, -0.06); break;
+    case 'cap': hb(headW + 0.06, 0.14, headD + 0.06, 0, top + 0.04, 0, mHat); hb(headW * 0.9, 0.04, 0.24, 0, top - 0.0, headD / 2 + 0.1, mHat); break;
     case 'mailman':
       hb(headW + 0.06, 0.2, headD + 0.06, 0, top + 0.08, 0, mHat);
       hb(headW + 0.08, 0.04, 0.24, 0, top - 0.01, headD / 2 + 0.1, mHat);
@@ -267,7 +304,7 @@ export function makeCharacter(o = {}) {
   }
   function setFace(expr) {
     if (opt.silhouette) return;
-    if (!faceCache[expr]) faceCache[expr] = drawFace(expr);
+    if (!faceCache[expr]) faceCache[expr] = drawFace(expr, opt.faceOpts || {});
     faceMesh.material.map = faceCache[expr]; faceMesh.material.needsUpdate = true;
   }
   function attach(obj, joint = 'wristR', offset = [0, -0.16, 0]) {
