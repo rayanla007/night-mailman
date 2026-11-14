@@ -96,11 +96,11 @@ def durations(lines, est_wps=3.3):
 if BED_ONLY: voice = None
 VOICE_FILE = os.environ.get('VOICE_FILE')  # your own recorded narration (one file, a pause between lines)
 if VOICE_FILE and not BED_ONLY:
-    import align_voice
+    import align_dtw
     raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', VOICE_FILE, '-ac', '1', '-ar', str(SR), '-f', 'f32le', '-'], capture_output=True, check=True).stdout
     rec = np.frombuffer(raw, np.float32).astype(np.float64)
     spoken = [s for s in script if s['vo']]
-    segs = align_voice.align(rec, SR, [s['tts'] for s in spoken])
+    segs = align_dtw.align(rec, SR, [s['tts'] for s in spoken], os.path.join(ROOT, 'tools/piper/en-us-ryan-high.onnx'))
     it = iter(segs); lines = []
     for s in script:
         if not s['vo']: lines.append(None); continue
