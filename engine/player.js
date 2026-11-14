@@ -6,6 +6,9 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { buildWorld, PRESETS } from './world.js';
+import { buildV3, PRESETS_V3 } from './v3.js';
+Object.assign(PRESETS, PRESETS_V3);
+const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
 import { Poses } from './character.js';
 import { GLASS_DARK, GLASS_LIT } from './props.js';
@@ -34,9 +37,9 @@ const Vignette = {
 
 export async function boot() {
   await loadFonts();
-  const [{ shots }, timing] = await Promise.all([
-    import('/shots.js?v=' + Date.now()),
-    fetch('/build/timing.json?v=' + Date.now()).then(r => r.json()),
+  const [shotMod, timing] = await Promise.all([
+    import('/' + (QS.get('shots') || 'shots.js') + '?v=' + Date.now()),
+    fetch('/' + (QS.get('timing') || 'build/timing.json') + '?v=' + Date.now()).then(r => r.json()),
   ]);
   const canvas = document.createElement('canvas'); canvas.width = Wd; canvas.height = Ht;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
@@ -46,6 +49,8 @@ export async function boot() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, Wd / Ht, 0.05, 900);
   const W = buildWorld(scene);
+  const shots = shotMod.shots;
+  if (shotMod.v3) buildV3(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const composer = new EffectComposer(renderer);
@@ -71,6 +76,7 @@ export async function boot() {
     W.key.color.set(p.key[0]); W.key.intensity = p.key[1]; W.fill.intensity = p.fill;
     W.stars.visible = p.stars; W.moonDisc.visible = W.moonHalo.visible = p.moon;
     if (W.clouds) W.clouds.visible = !!p.clouds;
+    if (W.clouds3) W.clouds3.visible = !!p.clouds;
     bloom.strength = p.bloom[0]; bloom.radius = p.bloom[1]; bloom.threshold = p.bloom[2];
     W.preset = p;
   }
@@ -79,7 +85,7 @@ export async function boot() {
     const setName = shot.set || 'street';
     for (const [n, g] of Object.entries(W.sets)) g.visible = n === setName;
     W.activeSet = W.sets[setName]; W.setName = setName;
-    for (const c of Object.values(W.chars)) { c.group.visible = false; c.setPose({}); c.setFace(c.name === 'Pell' ? 'serious' : c.name === 'Dog' ? 'dog' : 'neutral'); c.group.rotation.set(0, 0, 0); scene.add(c.group); }
+    for (const c of Object.values(W.chars)) { c.group.visible = false; c.setPose({}); c.setFace(c.name === 'Pell' ? 'serious' : c.name === 'Dog' ? 'dog' : 'neutral'); c.group.rotation.set(0, 0, 0); c.group.position.set(0, 0, 0); scene.add(c.group); }
     const P = W.props;
     P.lamp.setOn(1); P.lamp.power = 1; P.clock.setTime('11:59'); P.clock.group.visible = true;
     P.window.setOpen(0); P.curtains.animate(0, 0); P.bedDoor.hinge.rotation.y = 0;
@@ -93,6 +99,20 @@ export async function boot() {
     W.cool.intensity = 0;
     W.farTown.visible = true;
     W.props.truck.visible = (shot.light || 'night') === 'day';
+    W.bedWall.color.set('#86a6f2'); W.props.bed.position.y = 0;
+    if (W.v3) {
+      for (const c of W.crowd) { c.group.visible = false; c.setPose({}); c.group.rotation.set(0, 0, 0); scene.add(c.group); }
+      for (const c of W.cars) { c.obj.position.set(...c.base); c.obj.rotation.set(0, c.rot, 0); }
+      W.bus.obj.position.set(...W.bus.base); W.bus.obj.rotation.set(0, W.bus.rot, 0);
+      for (const m of W.mailboxes3) { m.obj.position.set(...m.base); m.obj.rotation.set(0, 0, 0); }
+      for (const h of W.houses3) { h.group.position.y = 0; h.group.rotation.z = 0; }
+      const tp = W.chars.mayor.parts.toupee, th = W.props.toupeeHome; th.parent.add(tp); tp.position.copy(th.pos); tp.rotation.set(0, 0, 0); tp.scale.setScalar(1); tp.visible = true;
+      W.tower.key.visible = true; W.tower.key.rotation.set(0, 0, 0); W.tower.setTime(11, 59); W.tower.setDigital('11:59:00');
+      W.bigKey.visible = true; W.bigKey.rotation.z = 0; W.gears.forEach(g => (g.obj.rotation.z = 0));
+      W.fountain.jet.scale.set(1, 1, 1); W.fountain.water.visible = true; W.siren.light.visible = true;
+      for (const k of ['balloon', 'keyProp', 'neckKey']) { const o = W.props[k].group || W.props[k]; o.removeFromParent(); o.visible = true; o.rotation.set(0, 0, 0); }
+      if (W.__blobs) W.__blobs.forEach(b => (b.visible = false));
+    }
     setLighting(shot.light || 'night', setName);
     if (shot.fog) scene.fog = new THREE.Fog(...shot.fog);
     // moon/key light direction relative to set

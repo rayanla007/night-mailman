@@ -154,7 +154,7 @@ export function buildWorld(scene) {
 
   // ---------- BEDROOM (x = 500) ----------
   const bed = new THREE.Group(); bed.name = 'bedroom'; bed.position.set(500, 0, 0); scene.add(bed); W.sets.bedroom = bed;
-  const wallM = std('#86a6f2', { roughness: 0.85 }), trimM = std('#eef3ff'), floorM = std('#8a5a3c', { roughness: 0.7 });
+  const wallM = W.bedWall = new THREE.MeshStandardMaterial({ color: '#86a6f2', roughness: 0.85 }), trimM = std('#eef3ff'), floorM = std('#8a5a3c', { roughness: 0.7 });
   const floorTex = canvasTex(512, 512, (x, w, h) => {
     for (let i = 0; i < 8; i++) { x.fillStyle = i % 2 ? '#8a5a3c' : '#7c5035'; x.fillRect(0, i * 64, w, 64); x.fillStyle = '#5d3a25'; x.fillRect(0, i * 64, w, 3); x.fillRect(((i * 197) % 400) + 40, i * 64, 3, 64); }
   });

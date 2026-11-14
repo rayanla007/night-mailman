@@ -25,7 +25,10 @@ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=sw
 const page = await browser.newPage();
 page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
 page.on('pageerror', e => console.log('[pageerror]', e.message));
-await page.goto(`http://127.0.0.1:${port}/engine/index.html`);
+const TAG = process.env.TAG || '';
+const BUILD = 'build' + (TAG ? '_' + TAG : '');
+const qs = TAG ? `?shots=${process.env.SHOTS || 'shots_' + TAG + '.js'}&timing=${BUILD}/timing.json` : '';
+await page.goto(`http://127.0.0.1:${port}/engine/index.html${qs}`);
 await page.waitForFunction(() => window.__ready || window.__error, null, { timeout: 120000 });
 const err = await page.evaluate(() => window.__error);
 if (err) { console.error(err); process.exit(1); }
@@ -50,7 +53,7 @@ if (mode === 'video') {
   const n = await page.evaluate(() => window.__frameCount);
   const mk = file => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', '30', '-i', '-',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', '30', file], { stdio: ['pipe', 'inherit', 'inherit'] });
-  const ffA = mk(path.join(ROOT, 'build/video.mp4')), ffB = mk(path.join(ROOT, 'build/video_clean.mp4'));
+  const ffA = mk(path.join(ROOT, BUILD, 'video.mp4')), ffB = mk(path.join(ROOT, BUILD, 'video_clean.mp4'));
   const t0 = Date.now();
   for (let f = 0; f < n; f++) {
     const [clean, cap] = await page.evaluate(f => window.renderFrameBoth(f), f);
@@ -61,9 +64,9 @@ if (mode === 'video') {
   ffA.stdin.end(); ffB.stdin.end(); await Promise.all([ffA, ffB].map(p => new Promise(r => p.on('close', r))));
   console.log('wrote build/video.mp4 and build/video_clean.mp4');
 } else {
-  const shots = await page.evaluate(() => fetch('/build/timing.json').then(r => r.json()).then(t => t.shots.length));
+  const shots = await page.evaluate(b => fetch('/' + b + '/timing.json').then(r => r.json()).then(t => t.shots.length), BUILD);
   const only = (process.argv[3] || '').split(',').filter(Boolean).map(Number);
-  const dir = path.join(ROOT, mode === 'check' ? 'out/check' : 'build/stills');
+  const dir = path.join(ROOT, mode === 'check' ? 'out/' + (TAG ? TAG + '/' : '') + 'check' : BUILD + '/stills');
   fs.mkdirSync(dir, { recursive: true });
   for (let i = 0; i < shots; i++) {
     if (only.length && !only.includes(i + 1)) continue;
