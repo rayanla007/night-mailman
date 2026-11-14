@@ -37,3 +37,12 @@ export function buildStation(scene, W) {
   for (const x of [-12, 12]) for (const z of [-12, 4]) { const a = mesh(new THREE.SphereGeometry(0.35, 12, 8), new THREE.MeshBasicMaterial({ color: '#552222' }), x, 10.5, z, g, { cast: false }); (W.alarms = W.alarms || []).push(a); }
   const amb = new THREE.PointLight('#7fa8ff', 3, 0, 1.0); amb.position.set(0, 10, 2); g.add(amb); W.stationAmb = amb;
 }
+
+// extra cast members requested by a story's kit list
+import { makeCharacter } from './character.js';
+export function buildExtras(scene, W, kit) {
+  const mk = (key, o) => { const c = makeCharacter(o); W.chars[key] = c; scene.add(c.group); };
+  if (kit.includes('pia')) mk('pia', { name: 'Pia', skin: '#f6cfa6', shirt: '#ff7ac4', print: 'heart', pants: '#9b5cff', shoes: '#ffffff', hair: 'mia', hairColor: '#e8b33c', scale: 0.66 });
+  if (kit.includes('mic')) { const g = new THREE.Group(); mesh(new THREE.CylinderGeometry(0.25, 0.3, 0.05, 16), std('#222'), 0, 0.025, 0, g); mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.5, 8), std('#888', { metalness: 0.8 }), 0, 0.75, 0, g); mesh(new THREE.SphereGeometry(0.1, 16, 12), std('#333', { metalness: 0.5, roughness: 0.4 }), 0, 1.55, 0, g); W.props.mic = { group: g }; }
+  if (kit.includes('dad')) mk('dad', { name: 'Dad', skin: '#f1c09a', shirt: '#3fa9ff', print: 'jacket', pants: '#2a2a3a', shoes: '#2b1d16', hair: 'clumps', hairColor: '#4a2a17', scale: 1.06 });
+}

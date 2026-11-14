@@ -11,7 +11,7 @@ const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 import { buildV4 } from './v4.js';
-import { buildStation } from './v5.js';
+import { buildStation, buildExtras } from './v5.js';
 Object.assign(PRESETS, PRESETS_V3);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
@@ -60,6 +60,7 @@ export async function boot() {
   if (shotMod.v3 || shotMod.v4 || kit.length) buildV3(scene, W);
   if (shotMod.v4 || kit.includes('cast4')) buildV4(scene, W, { buttons: !!shotMod.v4 });
   if (kit.includes('station')) buildStation(scene, W);
+  if (kit.length) buildExtras(scene, W, kit);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(Wd, Ht, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
@@ -140,6 +141,7 @@ export async function boot() {
     }
     setLighting(shot.light || 'night', setName);
     if (shot.fog) scene.fog = new THREE.Fog(...shot.fog);
+    if (W.bigKey && shot.noKey) W.bigKey.visible = false;
     // moon/key light direction relative to set
     const dir = new THREE.Vector3(...(shot.moonDir || (setName === 'street' ? [-0.35, 0.55, -1] : [0.25, 0.75, -1]))).normalize();
     W.moonDirection = dir;
@@ -207,8 +209,8 @@ export async function boot() {
   const warnIcon = (x, y, s, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s * 1.1, y + s * 0.8); ctx.lineTo(x - s * 1.1, y + s * 0.8); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#000'; ctx.font = `900 ${s * 1.2}px Montserrat`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y + s * 0.15); };
   const projV = new THREE.Vector3();
   function drawHUD(shot, t, u) {
-    for (const h0 of shot.hud || []) {
-      const h = typeof h0 === 'function' ? h0(t, u, W) : h0;
+    const items = (shot.hud || []).flatMap(h0 => { const r = typeof h0 === 'function' ? h0(t, u, W) : h0; return Array.isArray(r) ? r : [r]; });
+    for (const h of items) {
       if (!h || (h.from != null && u < h.from) || (h.to != null && u > h.to)) continue;
       const age = t - (h.from != null ? h.from * timing.shots[current].dur : 0);
       const pop = 1 + 0.25 * Math.max(0, 1 - age / 0.12);
@@ -229,10 +231,10 @@ export async function boot() {
       } else if (h.type === 'tag') {
         const ch = h.obj || W.chars[h.char]; if (!ch || !ch.group.visible) { ctx.restore(); continue; }
         ch.group.updateMatrixWorld(true);
-        projV.set(0, (ch.height || 1.2) / (ch.scale || 1) + 0.35, 0); (ch.body || ch.group).localToWorld(projV); projV.project(camera);
+        projV.set(0, h.at != null ? (ch.height || 1.2) / (ch.scale || 1) * h.at : (ch.height || 1.2) / (ch.scale || 1) + 0.35, 0); (ch.body || ch.group).localToWorld(projV); projV.project(camera);
         if (projV.z > 1) { ctx.restore(); continue; }
         let x = (projV.x * 0.5 + 0.5) * Wd, y = (-projV.y * 0.5 + 0.5) * Ht;
-        x = Math.min(Wd * 0.72, Math.max(Wd * 0.18, x)); y = Math.max(300, Math.min(Ht * 0.55, y));
+        if (h.at == null) { x = Math.min(Wd * 0.72, Math.max(Wd * 0.18, x)); y = Math.max(300, Math.min(Ht * 0.55, y)); } else if (x < 0 || x > Wd || y < 0 || y > Ht) { ctx.restore(); continue; }
         ctx.font = '900 46px Montserrat'; const w = ctx.measureText(h.text).width + 90;
         ctx.translate(x, y); ctx.scale(pop, pop);
         rr(-w / 2, -34, w, 68, 18); ctx.fillStyle = 'rgba(25,22,40,0.85)'; ctx.fill();
@@ -251,7 +253,7 @@ export async function boot() {
         rr(-72, -24, 134 * lv / 100, 48, 8); ctx.fillStyle = col; ctx.fill();
         ctx.font = '700 34px Fredoka'; ctx.fillStyle = '#ffffff'; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.strokeText(Math.round(lv) + '%', -5, 2); ctx.fillText(Math.round(lv) + '%', -5, 2);
       } else if (h.type === 'text') {
-        ctx.translate(Wd * 0.47, h.y || 300); ctx.scale(pop, pop);
+        ctx.translate(h.x ?? Wd * 0.47, h.y || 300); ctx.scale(pop, pop); if (h.rot) ctx.rotate(h.rot); if (h.alpha != null) ctx.globalAlpha = h.alpha;
         ctx.font = `900 ${h.size || 70}px Montserrat`; ctx.lineJoin = 'round'; ctx.lineWidth = 16; ctx.strokeStyle = '#000'; ctx.strokeText(h.text, 0, 0); ctx.fillStyle = h.color || '#fff'; ctx.fillText(h.text, 0, 0);
       }
       ctx.restore();
