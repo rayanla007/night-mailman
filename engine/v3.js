@@ -279,8 +279,8 @@ export function buildV3(scene, W) {
   const warm2 = new THREE.PointLight('#ffd9a0', 2, 0, 1.4); warm2.position.set(0, 4, 5); gr.add(warm2);
 
   // ---------------- CAST ----------------
-  // narrator: Leo (12). Kept under the key 'ivy' so the shot list did not need renaming.
-  const ivy = makeCharacter({ name: 'Leo', skin: '#f1c09a', shirt: '#8a5cff', print: 'hoodie', pants: '#2f5fe0', shoes: '#ffffff', hair: 'theo', hairColor: '#6b3a1e', scale: 0.92 });
+  // narrator: Ryan (12). Kept under the key 'ivy' so the shot list did not need renaming.
+  const ivy = makeCharacter({ name: 'Ryan', skin: '#f1c09a', shirt: '#8a5cff', print: 'hoodie', pants: '#2f5fe0', shoes: '#ffffff', hair: 'theo', hairColor: '#6b3a1e', scale: 0.92 });
   const bo = makeCharacter({ name: 'Bo', skin: '#f6cfa6', shirt: '#ff8a1f', print: 'overalls', sleeves: '#ff8a1f', pants: '#2f6fe0', shoes: '#ff3b4e', hair: 'bo', hairColor: '#f2c14e', scale: 0.66 });
   const gus = makeCharacter({ name: 'Gus', skin: '#e9b48d', shirt: '#8b5a2b', print: 'cardigan', pants: '#4b4f72', shoes: '#2b1d16', hair: 'gus', hairColor: '#f4f4f4', scale: 1.0, faceOpts: { glasses: true } });
   const mayor = makeCharacter({ name: 'Mayor', skin: '#f0c4a0', shirt: '#6a2fb5', print: 'mayor', pants: '#3a2a60', shoes: '#1a1420', hair: 'toupee', hairColor: '#2b1a10', scale: 1.08 });

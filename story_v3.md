@@ -1,9 +1,9 @@
 # FLOAT HOUR (v3 story)
 
-Format: ~2:15 vertical, first-person kid narrator (Leo, 12), a cut every 1–1.5 s, "This town…" hook,
+Format: ~2:15 vertical, first-person kid narrator (Ryan, 12), a cut every 1–1.5 s, "This town…" hook,
 escalating set pieces, comic beats, a hero solution, and a twist ending.
 
-Cast: **Leo** (narrator, 12), **Bo** (his 6-year-old brother, never lets go of his red balloon),
+Cast: **Ryan** (narrator, 12), **Bo** (his 6-year-old brother, never lets go of his red balloon),
 **Grandpa Gus** (winds the town clock), **Mayor Grimsby** (wears a toupee), **Biscuit** (the dog).
 
 ## Script
@@ -21,7 +21,7 @@ Cast: **Leo** (narrator, 12), **Bo** (his 6-year-old brother, never lets go of h
 10. We call it Float Hour. Even though it's a minute.
 
 **Act 2: the family**
-11. I'm Leo.
+11. I'm Ryan.
 12. This is my little brother, Bo.
 13. Bo has never held a railing in his life.
 14. He says floating is the best part of the day.
