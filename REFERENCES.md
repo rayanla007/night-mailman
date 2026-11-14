@@ -18,3 +18,13 @@
 3. Sync: `TAG=xx VOICE_FILE=voice/<file>.wav python3 tools/build_audio.py` (DTW alignment in tools/align_dtw.py),
    check `build_xx/voice_alignment.txt`, then `TAG=xx SHOTS=shots_xx.js node tools/render.mjs both`.
 - The narrator is a boy (the user narrates as a boy, e.g. "Ryan").
+
+## Learned from jexario (5 videos studied) — now built into the engine
+- Captions: rounded heavy font (Fredoka 700), **mixed case**, lime-yellow gradient, thin dark outline + soft drop shadow, at ~71% height.
+- Faces: white eyes with thin outline, black pupil + shine, thin curved brows, small mouths with pink tongue (character.js drawFace).
+- Hair: sculpted rounded clumps (`hair: 'clumps'`) or spiky tufts (`hair: 'spiky'`), slightly glossy.
+- Clothes: long sleeves with ribbed cuffs, hem band, hoodie drawstrings + stitched kangaroo pocket, fabric/denim textures.
+- Rendering: ACES filmic grade, ambient occlusion (GTAO), depth-of-field blur on close-ups (auto when the camera is < 4.5 m from its target;
+  per shot `dof: 0.006` or `noDof: true`). `?hq=0` turns these off for fast previews.
+- His stories: high-concept places (a 100-floor building with food delivered by floor, a grey town that turns colourful, a monster
+  that only hears loud noise...), lots of in-world screens/signs/timers, dense props (piles of food, crowds), dramatic lighting changes.

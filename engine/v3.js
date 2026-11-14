@@ -180,7 +180,7 @@ function makeGear(r, teeth, thick, color) {
 const SKINS = ['#f3c39a', '#e0a77a', '#c98a5c', '#8d5a3b', '#f6d2b4', '#b07850'];
 const SHIRTS = ['#ff4f6d', '#3fa9ff', '#40c463', '#ffb020', '#9b5cff', '#ff7ac4', '#21c7b5', '#ffffff', '#ff6a2b'];
 const PANTS = ['#2f5fe0', '#2a2a3a', '#6b4a35', '#3fae6a', '#8a8fa8'];
-const HAIRS = ['crowd1', 'crowd2', 'theo', 'mia', 'cap', 'bo'];
+const HAIRS = ['clumps', 'crowd2', 'spiky', 'mia', 'cap', 'clumps'];
 const HAIRC = ['#2b1a10', '#5a3220', '#f2c14e', '#c0522b', '#111111', '#7a5230'];
 function makeCrowd(n, seed = 3) {
   let s = seed; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -280,8 +280,8 @@ export function buildV3(scene, W) {
 
   // ---------------- CAST ----------------
   // narrator: Ryan (12). Kept under the key 'ivy' so the shot list did not need renaming.
-  const ivy = makeCharacter({ name: 'Ryan', skin: '#f1c09a', shirt: '#8a5cff', print: 'hoodie', pants: '#2f5fe0', shoes: '#ffffff', hair: 'theo', hairColor: '#6b3a1e', scale: 0.92 });
-  const bo = makeCharacter({ name: 'Bo', skin: '#f6cfa6', shirt: '#ff8a1f', print: 'overalls', sleeves: '#ff8a1f', pants: '#2f6fe0', shoes: '#ff3b4e', hair: 'bo', hairColor: '#f2c14e', scale: 0.66 });
+  const ivy = makeCharacter({ name: 'Ryan', skin: '#f1c09a', shirt: '#8a5cff', print: 'hoodie', pants: '#2f5fe0', shoes: '#ffffff', hair: 'clumps', hairColor: '#3b2416', scale: 0.92 });
+  const bo = makeCharacter({ name: 'Bo', skin: '#f6cfa6', shirt: '#ff8a1f', print: 'overalls', sleeves: '#ff8a1f', pants: '#2f6fe0', shoes: '#ff3b4e', hair: 'spiky', hairColor: '#e8b33c', scale: 0.66 });
   const gus = makeCharacter({ name: 'Gus', skin: '#e9b48d', shirt: '#8b5a2b', print: 'cardigan', pants: '#4b4f72', shoes: '#2b1d16', hair: 'gus', hairColor: '#f4f4f4', scale: 1.0, faceOpts: { glasses: true } });
   const mayor = makeCharacter({ name: 'Mayor', skin: '#f0c4a0', shirt: '#6a2fb5', print: 'mayor', pants: '#3a2a60', shoes: '#1a1420', hair: 'toupee', hairColor: '#2b1a10', scale: 1.08 });
   Object.assign(W.chars, { ivy, bo, gus, mayor });

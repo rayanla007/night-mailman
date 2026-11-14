@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/rayanla007/night-mailman#readme",
   "dependencies": {
+    "@fontsource/fredoka": "^5.3.0",
     "@fontsource/montserrat": "^5.3.0",
     "@fontsource/special-elite": "^5.3.0",
     "playwright": "^1.63.0",

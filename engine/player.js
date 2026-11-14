@@ -5,6 +5,9 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+const HQ = new URLSearchParams(location.search).get('hq') !== '0';
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 Object.assign(PRESETS, PRESETS_V3);
@@ -18,6 +21,7 @@ const Wd = 1080, Ht = 1920, FPS = 30;
 async function loadFonts() {
   const faces = [
     new FontFace('Montserrat', 'url(/node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2)', { weight: '900' }),
+    new FontFace('Fredoka', 'url(/node_modules/@fontsource/fredoka/files/fredoka-latin-700-normal.woff2)', { weight: '700' }),
     new FontFace('Special Elite', 'url(/node_modules/@fontsource/special-elite/files/special-elite-latin-400-normal.woff2)'),
   ];
   for (const f of faces) { await f.load(); document.fonts.add(f); }
@@ -55,6 +59,14 @@ export async function boot() {
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
+  let gtao = null, bokeh = null;
+  if (HQ) {
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
+    gtao = new GTAOPass(scene, camera, Wd / 2, Ht / 2); gtao.blendIntensity = 0.85;
+    gtao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1.4, thickness: 1.2, scale: 1.0, samples: 12 });
+    composer.addPass(gtao);
+    bokeh = new BokehPass(scene, camera, { focus: 3, aperture: 0.004, maxblur: 0.008 }); composer.addPass(bokeh);
+  }
   const bloom = new UnrealBloomPass(new THREE.Vector2(Wd / 2, Ht / 2), 0.8, 0.5, 0.7); composer.addPass(bloom);
   const grade = new ShaderPass(Vignette); composer.addPass(grade);
   composer.addPass(new OutputPass());
@@ -120,7 +132,7 @@ export async function boot() {
     W.moonDirection = dir;
     W.shadowSize = shot.shadowSize || (setName === 'street' ? 30 : 7);
     const sc = W.key.shadow.camera; sc.left = -W.shadowSize; sc.right = W.shadowSize; sc.top = W.shadowSize; sc.bottom = -W.shadowSize; sc.updateProjectionMatrix();
-    grade.uniforms.flash.value = 0; grade.uniforms.dark.value = 0; grade.uniforms.strength.value = 0.55;
+    grade.uniforms.flash.value = 0; grade.uniforms.dark.value = 0; grade.uniforms.strength.value = HQ ? 0.4 : 0.55;
   }
 
   // helpers available to shots
@@ -158,20 +170,22 @@ export async function boot() {
     if (!word) return;
     const age = time - word.start;
     const pop = 1 + 0.22 * Math.max(0, 1 - age / 0.09);
-    let size = 92;
+    let size = 104;
     ctx.save();
-    ctx.font = `900 ${size}px Montserrat`;
-    const text = word.text.toUpperCase();
+    const CF = s => `700 ${s}px Fredoka`;
+    ctx.font = CF(size);
+    const text = word.text.replace(/^["'“”]+|["'“”]+$/g, '');
     const maxW = 760; // keeps clear of right edge
     let wTxt = ctx.measureText(text).width;
-    if (wTxt > maxW) { size = Math.floor(size * maxW / wTxt); ctx.font = `900 ${size}px Montserrat`; wTxt = ctx.measureText(text).width; }
-    const cx = Wd * 0.47, cy = Ht * 0.66;
+    if (wTxt > maxW) { size = Math.floor(size * maxW / wTxt); ctx.font = CF(size); wTxt = ctx.measureText(text).width; }
+    const cx = Wd * 0.47, cy = Ht * 0.71;
     ctx.translate(cx, cy); ctx.scale(pop, pop);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
-    ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 9;
-    ctx.lineWidth = size * 0.26; ctx.strokeStyle = '#000'; ctx.strokeText(text, 0, 0);
+    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 7;
+    ctx.lineWidth = size * 0.15; ctx.strokeStyle = '#2a1d08'; ctx.strokeText(text, 0, 0);
     ctx.shadowColor = 'transparent';
-    ctx.fillStyle = word.color || '#ffe14a'; ctx.fillText(text, 0, 0);
+    const gr = ctx.createLinearGradient(0, -size * 0.45, 0, size * 0.45); gr.addColorStop(0, word.color || '#f7ff5c'); gr.addColorStop(1, word.color || '#e6f02a');
+    ctx.fillStyle = gr; ctx.fillText(text, 0, 0);
     ctx.restore();
   }
 
@@ -228,6 +242,12 @@ export async function boot() {
     const c = evalCamera(shot.cam, t, u, W);
     applyCamera(camera, c, time, W.activeSet);
     placeLights(c.look);
+    if (bokeh) {
+      const dist = camera.position.distanceTo(W.activeSet.localToWorld(new THREE.Vector3(...c.look)));
+      const dof = shot.dof ?? (dist < 4.5 && !shot.noDof);
+      bokeh.enabled = !!dof;
+      if (dof) { bokeh.uniforms.focus.value = dist; bokeh.uniforms.aperture.value = (typeof dof === 'number' ? dof : 0.0045) * (2.5 / Math.max(1, dist)); }
+    }
     composer.render();
     ctx.drawImage(canvas, 0, 0);
     drawHUD(shot, t, u);
