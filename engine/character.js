@@ -242,9 +242,9 @@ export function makeCharacter(o = {}) {
   const TD = CH ? 0.46 : 0.42;
 
   const hips = pivot('hips', body, 0, legTotal);
-  part('lowerTorso', hips, rbox(tw * 0.97, ltH, TD - 0.02), mPants, 0, ltH / 2);
+  part('lowerTorso', hips, rbox(tw * (CH ? 1 : 0.97), ltH + (CH ? 0.03 : 0), TD - (CH ? 0.0 : 0.02), CH ? 0.015 : 0.035), mPants, 0, ltH / 2);
   const waist = pivot('waist', hips, 0, ltH);
-  part('upperTorso', waist, rbox(tw, utH, TD, CH ? 0.06 : 0.035), mShirt, 0, utH / 2);
+  part('upperTorso', waist, rbox(tw, utH, TD, CH ? 0.02 : 0.035), mShirt, 0, utH / 2);
   if (!opt.silhouette && opt.print !== 'overalls') { const hem = new THREE.Mesh(rbox(tw * 1.025, 0.08, TD + 0.02, 0.02), mat(new THREE.Color(opt.shirt).multiplyScalar(0.85).getStyle(), 'hem')); hem.position.set(0, 0.04, 0); waist.add(hem); }
   if (opt.print && !opt.silhouette) {
     const pm = new THREE.MeshStandardMaterial({ map: shirtPrint(opt.print, opt.shirt), transparent: true, roughness: 0.6, depthWrite: false });
@@ -252,7 +252,7 @@ export function makeCharacter(o = {}) {
   }
   const neck = pivot('neck', waist, 0, utH);
   const headH = CH ? 0.6 : 0.5, headW = CH ? 0.66 : 0.56, headD = CH ? 0.58 : 0.5;
-  const head = part('head', neck, rbox(headW, headH, headD, CH ? 0.11 : 0.07), mSkin, 0, headH / 2 + 0.015);
+  const head = part('head', neck, rbox(headW, headH, headD, CH ? 0.06 : 0.07), mSkin, 0, headH / 2 + 0.015);
   // face decal
   const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(headW * 0.9, headH * 0.9),
     opt.silhouette ? new THREE.MeshBasicMaterial({ map: drawFace('glow'), transparent: true, depthWrite: false })
@@ -264,24 +264,24 @@ export function makeCharacter(o = {}) {
   // arms
   for (const s of ['L', 'R']) {
     const sx = s === 'L' ? 1 : -1;
-    const sh = pivot('shoulder' + s, waist, sx * (tw / 2 + armW / 2 + 0.01), utH - 0.05);
-    part('upperArm' + s, sh, rbox(armW, aU + 0.05, armW, CH ? 0.06 : 0.035), mSleeve, 0, -aU / 2 + 0.04);
+    const sh = pivot('shoulder' + s, waist, sx * (tw / 2 + armW / 2 + (CH ? 0.0 : 0.01)), utH - 0.05);
+    part('upperArm' + s, sh, rbox(armW, aU + 0.05, armW, CH ? 0.015 : 0.035), mSleeve, 0, -aU / 2 + 0.04);
     const el = pivot('elbow' + s, sh, 0, -aU + 0.02);
-    part('lowerArm' + s, el, rbox(armW * (CH ? 0.99 : 0.96), aL + (CH ? 0.04 : 0), armW * (CH ? 0.99 : 0.96), CH ? 0.06 : 0.035), longSleeves ? mSleeve : mSkin, 0, -aL / 2);
+    part('lowerArm' + s, el, rbox(armW * (CH ? 1 : 0.96), aL + (CH ? 0.08 : 0), armW * (CH ? 1 : 0.96), CH ? 0.015 : 0.035), longSleeves ? mSleeve : mSkin, 0, -aL / 2);
     if (longSleeves && !opt.silhouette) { const cuff = new THREE.Mesh(rbox(armW * 1.04, 0.07, armW * 1.04, 0.02), mat(new THREE.Color(opt.sleeves || opt.shirt).multiplyScalar(0.82).getStyle(), 'cuff')); cuff.position.set(0, -aL + 0.04, 0); el.add(cuff); }
     const wr = pivot('wrist' + s, el, 0, -aL);
-    part('hand' + s, wr, rbox(armW * 0.98, aH, armW * 0.98), mSkin, 0, -aH / 2 + 0.01);
+    part('hand' + s, wr, rbox(armW * (CH ? 1 : 0.98), aH + (CH ? 0.03 : 0), armW * (CH ? 1 : 0.98), CH ? 0.015 : 0.035), mSkin, 0, -aH / 2 + (CH ? 0.02 : 0.01));
   }
   // legs
   for (const s of ['L', 'R']) {
     const sx = s === 'L' ? 1 : -1;
-    const hp = pivot('hip' + s, hips, sx * (tw / 2 - legW / 2 - 0.005), 0.02);
-    part('upperLeg' + s, hp, rbox(legW, uL + 0.04, TD - 0.04, CH ? 0.05 : 0.035), mPants, 0, -uL / 2 + 0.02);
-    if (CH && !opt.silhouette && opt.jeans !== false) { const pk = new THREE.Mesh(new THREE.PlaneGeometry(legW * 0.8, uL * 0.6), pocketMat()); pk.position.set(0, -uL * 0.3, (TD - 0.04) / 2 + 0.002); pk.renderOrder = 2; hp.add(pk); }
+    const hp = pivot('hip' + s, hips, sx * (tw / 2 - legW / 2 - (CH ? 0.0 : 0.005)), 0.02);
+    part('upperLeg' + s, hp, rbox(legW, uL + 0.06, TD - 0.02, CH ? 0.015 : 0.035), mPants, 0, -uL / 2 + 0.02);
+    if (CH && !opt.silhouette && opt.jeans !== false) { const pk = new THREE.Mesh(new THREE.PlaneGeometry(legW * 0.8, uL * 0.6), pocketMat()); pk.position.set(0, -uL * 0.3, (TD - 0.02) / 2 + 0.002); pk.renderOrder = 2; hp.add(pk); }
     const kn = pivot('knee' + s, hp, 0, -uL);
-    part('lowerLeg' + s, kn, rbox(legW * (CH ? 0.99 : 0.97), lL + (CH ? 0.04 : 0), TD - (CH ? 0.05 : 0.06), CH ? 0.05 : 0.035), mPants, 0, -lL / 2);
+    part('lowerLeg' + s, kn, rbox(legW * (CH ? 1 : 0.97), lL + (CH ? 0.08 : 0), TD - (CH ? 0.02 : 0.06), CH ? 0.015 : 0.035), mPants, 0, -lL / 2);
     const an = pivot('ankle' + s, kn, 0, -lL);
-    part('foot' + s, an, rbox(legW * (CH ? 1.03 : 1), fL, CH ? 0.52 : 0.46, CH ? 0.05 : 0.035), mShoes, 0, -fL / 2 + 0.02, 0.05);
+    part('foot' + s, an, rbox(legW * (CH ? 1.02 : 1), fL, CH ? 0.5 : 0.46, CH ? 0.02 : 0.035), mShoes, 0, -fL / 2 + 0.02, 0.05);
     if (CH && !opt.silhouette) { const sole = new THREE.Mesh(rbox(legW * 1.07, 0.06, 0.55, 0.025), mat('#f5f5f5', 'sole')); sole.position.set(0, -fL + 0.03, 0.05); sole.castShadow = true; an.add(sole); }
   }
 
