@@ -1,49 +1,49 @@
 THE NIGHT MAILMAN - voiceover script
-Total length 128.13s. Times are when each line starts. [W] = whisper.
+Total length 116.37s. Times are when each line starts. [W] = whisper.
 
- 1    0.00s  (shot 5.30s)  In this town, you only get one hundred words per day.
- 2    5.30s  (shot 3.47s)  Everyone has a counter on their chest.
- 3    8.77s  (shot 3.47s)  Every word you say, it goes down.
- 4   12.23s  (shot 4.83s)  When it hits zero, your voice is gone until tomorrow.
- 5   17.07s  (shot 2.57s)  So nobody wastes words here.
- 6   19.63s  (shot 2.00s)  No small talk.
- 7   21.63s  (shot 2.13s)  No "how are you."
- 8   23.77s  (shot 2.00s)  Just nods.
- 9   25.77s  (shot 4.40s)  My little sister Pia spends her words on singing.
-10   30.17s  (shot 3.47s)  Every morning. All one hundred of them.
-11   33.63s  (shot 4.40s)  Then she's quiet for the rest of the day.
-12   38.03s  (shot 2.57s)  Dad says she's wasting them.
-13   40.60s  (shot 4.40s)  Pia says songs are the only words worth saying.
-14   45.00s  (shot 3.47s)  Then the mayor announced a new rule.
-15   48.47s  (shot 2.13s)  Words don't reset anymore.
-16   50.60s  (shot 4.40s)  Whatever you have left... is all you'll ever get.
-17   55.00s  (shot 2.57s)  The whole town went silent.
-18   57.57s  (shot 2.13s)  People started hoarding words.
-19   59.70s  (shot 2.00s)  Selling them.
-20   61.70s  (shot 2.00s)  Stealing them.
-21   63.70s  (shot 2.13s)  I had forty-two left.
-22   65.83s  (shot 2.00s)  Pia had zero.
-23   67.83s  (shot 3.03s)  She had already sung that morning.
-24   70.87s  (shot 2.57s)  She would never speak again.
-25   73.43s  (shot 3.47s)  She just looked at me and smiled.
-26   76.90s  (shot 3.47s)  That night, I found the mayor's office.
-27   80.37s  (shot 2.00s)  A giant machine.
-28   82.37s  (shot 2.00s)  Full of words.
-29   84.37s  (shot 2.00s)  Millions of them.
-30   86.37s  (shot 2.00s)  Everyone's words.
-31   88.37s  (shot 2.13s)  He wasn't saving them.
-32   90.50s  (shot 2.13s)  He was collecting them.
-33   92.63s  (shot 2.13s)  For one giant speech.
-34   94.77s  (shot 4.83s)  One that would make everyone in town obey him forever.
-35   99.60s  (shot 2.13s)  I had forty-two words.
-36  101.73s  (shot 2.13s)  I needed exactly one.
-37  103.87s  (shot 2.13s)  I pressed the microphone.
-38  106.00s  (shot 2.00s)  And I sang.
-39  108.00s  (shot 2.00s)  The machine cracked.
-40  110.00s  (shot 2.57s)  Words flew out like birds.
-41  112.57s  (shot 2.00s)  Back to everyone.
-42  114.57s  (shot 2.13s)  Pia opened her mouth.
-43  116.70s  (shot 3.47s)  And she sang the whole morning song.
-44  120.17s  (shot 2.57s)  My counter says zero now.
-45  122.73s  (shot 2.00s)  I don't mind.
-46  124.73s  (shot 3.40s)  She talks enough for both of us.
+ 1    0.00s  (shot 4.80s)  In this town, you only get one hundred words per day.
+ 2    4.80s  (shot 3.17s)  Everyone has a counter on their chest.
+ 3    7.97s  (shot 3.17s)  Every word you say, it goes down.
+ 4   11.13s  (shot 4.37s)  When it hits zero, your voice is gone until tomorrow.
+ 5   15.50s  (shot 2.33s)  So nobody wastes words here.
+ 6   17.83s  (shot 1.80s)  No small talk.
+ 7   19.63s  (shot 1.93s)  No "how are you."
+ 8   21.57s  (shot 1.80s)  Just nods.
+ 9   23.37s  (shot 3.97s)  My little sister Pia spends her words on singing.
+10   27.33s  (shot 3.17s)  Every morning. All one hundred of them.
+11   30.50s  (shot 3.97s)  Then she's quiet for the rest of the day.
+12   34.47s  (shot 2.33s)  Dad says she's wasting them.
+13   36.80s  (shot 3.97s)  Pia says songs are the only words worth saying.
+14   40.77s  (shot 3.17s)  Then the mayor announced a new rule.
+15   43.93s  (shot 1.93s)  Words don't reset anymore.
+16   45.87s  (shot 3.97s)  Whatever you have left... is all you'll ever get.
+17   49.83s  (shot 2.33s)  The whole town went silent.
+18   52.17s  (shot 1.93s)  People started hoarding words.
+19   54.10s  (shot 1.80s)  Selling them.
+20   55.90s  (shot 1.80s)  Stealing them.
+21   57.70s  (shot 1.93s)  I had forty-two left.
+22   59.63s  (shot 1.80s)  Pia had zero.
+23   61.43s  (shot 2.73s)  She had already sung that morning.
+24   64.17s  (shot 2.33s)  She would never speak again.
+25   66.50s  (shot 3.17s)  She just looked at me and smiled.
+26   69.67s  (shot 3.17s)  That night, I found the mayor's office.
+27   72.83s  (shot 1.80s)  A giant machine.
+28   74.63s  (shot 1.80s)  Full of words.
+29   76.43s  (shot 1.80s)  Millions of them.
+30   78.23s  (shot 1.80s)  Everyone's words.
+31   80.03s  (shot 1.93s)  He wasn't saving them.
+32   81.97s  (shot 1.93s)  He was collecting them.
+33   83.90s  (shot 1.93s)  For one giant speech.
+34   85.83s  (shot 4.37s)  One that would make everyone in town obey him forever.
+35   90.20s  (shot 1.93s)  I had forty-two words.
+36   92.13s  (shot 1.93s)  I needed exactly one.
+37   94.07s  (shot 1.93s)  I pressed the microphone.
+38   96.00s  (shot 1.80s)  And I sang.
+39   97.80s  (shot 1.80s)  The machine cracked.
+40   99.60s  (shot 2.33s)  Words flew out like birds.
+41  101.93s  (shot 1.80s)  Back to everyone.
+42  103.73s  (shot 1.93s)  Pia opened her mouth.
+43  105.67s  (shot 3.17s)  And she sang the whole morning song.
+44  108.83s  (shot 2.33s)  My counter says zero now.
+45  111.17s  (shot 1.80s)  I don't mind.
+46  112.97s  (shot 3.40s)  She talks enough for both of us.

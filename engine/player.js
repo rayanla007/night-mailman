@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'; const MSAA = Number(_q.get('msaa') ?? 4); const AO = _q.get('ao') === '1'; // ambient occlusion: barely visible here but doubles render time
+const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'; const RS = Number(_q.get('rs') ?? 1); /* render scale: 3D at RS x size, overlays full-res */ const MSAA = Number(_q.get('msaa') ?? 4); const AO = _q.get('ao') === '1'; // ambient occlusion: barely visible here but doubles render time
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 import { buildV4 } from './v4.js';
@@ -47,9 +47,10 @@ export async function boot() {
     import('/' + (QS.get('shots') || 'shots.js') + '?v=' + Date.now()),
     fetch('/' + (QS.get('timing') || 'build/timing.json') + '?v=' + Date.now()).then(r => r.json()),
   ]);
-  const canvas = document.createElement('canvas'); canvas.width = Wd; canvas.height = Ht;
+  const RW = Math.round(1080 * RS), RH = Math.round(1920 * RS);
+  const canvas = document.createElement('canvas'); canvas.width = RW; canvas.height = RH;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
-  renderer.setPixelRatio(1); renderer.setSize(Wd, Ht, false);
+  renderer.setPixelRatio(1); renderer.setSize(RW, RH, false);
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
@@ -63,7 +64,7 @@ export async function boot() {
   if (kit.length) buildExtras(scene, W, kit);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
-  const rt = new THREE.WebGLRenderTarget(Wd, Ht, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
+  const rt = new THREE.WebGLRenderTarget(RW, RH, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   let gtao = null, bokeh = null;
@@ -74,7 +75,7 @@ export async function boot() {
     composer.addPass(gtao); }
     bokeh = new BokehPass(scene, camera, { focus: 3, aperture: 0.004, maxblur: 0.008 }); composer.addPass(bokeh);
   }
-  const bloom = new UnrealBloomPass(new THREE.Vector2(Wd / 2, Ht / 2), 0.8, 0.5, 0.7); composer.addPass(bloom);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(RW / 2, RH / 2), 0.8, 0.5, 0.7); composer.addPass(bloom);
   const grade = new ShaderPass(Vignette); composer.addPass(grade);
   composer.addPass(new OutputPass());
 
@@ -276,7 +277,7 @@ export async function boot() {
       if (dof) { bokeh.uniforms.focus.value = dist; bokeh.uniforms.aperture.value = (typeof dof === 'number' ? dof : 0.0045) * (2.5 / Math.max(1, dist)); }
     }
     composer.render();
-    ctx.drawImage(canvas, 0, 0);
+    ctx.imageSmoothingQuality = 'high'; ctx.drawImage(canvas, 0, 0, Wd, Ht);
     drawHUD(shot, t, u);
     if (captions) drawCaption(time);
     return out;
