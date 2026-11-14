@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-const HQ = new URLSearchParams(location.search).get('hq') !== '0';
+const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'; const MSAA = Number(_q.get('msaa') ?? 4); const AO = _q.get('ao') === '1'; // ambient occlusion: barely visible here but doubles render time
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 Object.assign(PRESETS, PRESETS_V3);
@@ -57,14 +57,15 @@ export async function boot() {
   if (shotMod.v3) buildV3(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
-  const composer = new EffectComposer(renderer);
+  const rt = new THREE.WebGLRenderTarget(Wd, Ht, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
+  const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   let gtao = null, bokeh = null;
   if (HQ) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
-    gtao = new GTAOPass(scene, camera, Wd / 2, Ht / 2); gtao.blendIntensity = 0.85;
-    gtao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1.4, thickness: 1.2, scale: 1.0, samples: 12 });
-    composer.addPass(gtao);
+    if (AO) { gtao = new GTAOPass(scene, camera, Math.round(Wd / 3), Math.round(Ht / 3)); gtao.blendIntensity = 0.85;
+    if (gtao) gtao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1.4, thickness: 1.2, scale: 1.0, samples: 6 });
+    composer.addPass(gtao); }
     bokeh = new BokehPass(scene, camera, { focus: 3, aperture: 0.004, maxblur: 0.008 }); composer.addPass(bokeh);
   }
   const bloom = new UnrealBloomPass(new THREE.Vector2(Wd / 2, Ht / 2), 0.8, 0.5, 0.7); composer.addPass(bloom);

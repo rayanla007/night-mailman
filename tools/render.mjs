@@ -27,7 +27,8 @@ page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') co
 page.on('pageerror', e => console.log('[pageerror]', e.message));
 const TAG = process.env.TAG || '';
 const BUILD = 'build' + (TAG ? '_' + TAG : '');
-const qs = TAG ? `?shots=${process.env.SHOTS || 'shots_' + TAG + '.js'}&timing=${BUILD}/timing.json` : '';
+const extra = process.env.QS ? '&' + process.env.QS : '';
+const qs = (TAG ? `?shots=${process.env.SHOTS || 'shots_' + TAG + '.js'}&timing=${BUILD}/timing.json` : '?x=1') + extra;
 await page.goto(`http://127.0.0.1:${port}/engine/index.html${qs}`);
 await page.waitForFunction(() => window.__ready || window.__error, null, { timeout: 120000 });
 const err = await page.evaluate(() => window.__error);

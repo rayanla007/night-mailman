@@ -24,7 +24,9 @@
 - Faces: white eyes with thin outline, black pupil + shine, thin curved brows, small mouths with pink tongue (character.js drawFace).
 - Hair: sculpted rounded clumps (`hair: 'clumps'`) or spiky tufts (`hair: 'spiky'`), slightly glossy.
 - Clothes: long sleeves with ribbed cuffs, hem band, hoodie drawstrings + stitched kangaroo pocket, fabric/denim textures.
-- Rendering: ACES filmic grade, ambient occlusion (GTAO), depth-of-field blur on close-ups (auto when the camera is < 4.5 m from its target;
+- Body: 'chunky' proportions by default (torso as tall as legs, thick one-piece-looking limbs, big rounded head, sneakers
+  with white soles, jeans pocket stitching, ribbed cuffs/hem); `body: 'classic'` restores the old slim rig.
+- Rendering: ACES filmic grade, 4x MSAA anti-aliasing, optional ambient occlusion (`QS=ao=1`, ~2x slower), depth-of-field blur on close-ups (auto when the camera is < 4.5 m from its target;
   per shot `dof: 0.006` or `noDof: true`). `?hq=0` turns these off for fast previews.
 - His stories: high-concept places (a 100-floor building with food delivered by floor, a grey town that turns colourful, a monster
   that only hears loud noise...), lots of in-world screens/signs/timers, dense props (piles of food, crowds), dramatic lighting changes.
