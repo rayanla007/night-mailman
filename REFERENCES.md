@@ -30,3 +30,6 @@
   per shot `dof: 0.006` or `noDof: true`). `?hq=0` turns these off for fast previews.
 - His stories: high-concept places (a 100-floor building with food delivered by floor, a grey town that turns colourful, a monster
   that only hears loud noise...), lots of in-world screens/signs/timers, dense props (piles of food, crowds), dramatic lighting changes.
+
+## Sound preference
+- **No background music.** Voice + sound effects only: build audio with `NO_MUSIC=1`.

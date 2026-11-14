@@ -346,7 +346,8 @@ for i, s in enumerate(script):
 # original score: per-shot moods crossfaded (see tools/music.py)
 music = MU.score(N, starts, durs, [x.get('music', 'none') for x in script])
 fade = np.clip(T / 0.3, 0, 1) * np.clip((total - T) / 0.8, 0, 1)
-bed_mix = music * 0.5 * fade + mix_sfx * 0.85
+MUSIC_GAIN = 0.0 if os.environ.get('NO_MUSIC') == '1' else 0.5  # NO_MUSIC=1: voice + sound effects only
+bed_mix = music * MUSIC_GAIN * fade + mix_sfx * 0.85
 
 # hard silence windows (everything off, including voice)
 for t0, t1 in mutes:
