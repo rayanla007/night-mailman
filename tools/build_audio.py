@@ -100,7 +100,10 @@ if VOICE_FILE and not BED_ONLY:
     raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', VOICE_FILE, '-ac', '1', '-ar', str(SR), '-f', 'f32le', '-'], capture_output=True, check=True).stdout
     rec = np.frombuffer(raw, np.float32).astype(np.float64)
     spoken = [s for s in script if s['vo']]
-    segs = align_dtw.align(rec, SR, [s['tts'] for s in spoken], os.path.join(ROOT, 'tools/piper/en-us-ryan-high.onnx'))
+    if os.environ.get('ALIGN_FROM'):  # reuse a previous cut list (same timeline, e.g. a different pitch treatment)
+        segs = [tuple(map(float, l.split()[:2])) for l in open(os.environ['ALIGN_FROM']) if l.strip()]
+    else:
+        segs = align_dtw.align(rec, SR, [s['tts'] for s in spoken], os.path.join(ROOT, 'tools/piper/en-us-ryan-high.onnx'))
     it = iter(segs); lines = []
     for s in script:
         if not s['vo']: lines.append(None); continue
@@ -129,7 +132,8 @@ durs = durations(lines)
 durs = [round(d * 30) / 30 for d in durs]
 starts = list(np.cumsum([0] + durs[:-1]))
 total = float(sum(durs))
-if BED_ONLY:
+KEEP_TIMING = BED_ONLY or os.environ.get('KEEP_TIMING') == '1'  # reuse build/timing.json (video already rendered)
+if KEEP_TIMING:
     _t = json.load(open(B('timing.json')))
     durs = [x['dur'] for x in _t['shots']]; starts = [x['start'] for x in _t['shots']]; total = _t['total']
 print(f'total {total:.2f}s  (length_scale={ls})')
@@ -214,7 +218,7 @@ fast = [w for w in words if w['end'] - w['start'] < MIN_WORD]
 for w in words:
     w['start'] = round(w['start'], 3); w['end'] = round(w['end'], 3)
 
-if not BED_ONLY: json.dump({'fps': 30, 'total': total, 'lengthScale': ls,
+if not KEEP_TIMING: json.dump({'fps': 30, 'total': total, 'lengthScale': ls,
            'shots': [{'n': i + 1, 'start': round(float(starts[i]), 4), 'dur': durs[i]} for i in range(len(durs))],
            'words': words}, open(B('timing.json'), 'w'), indent=1)
 
