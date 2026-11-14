@@ -62,6 +62,8 @@ function drawFace(expr, opts = {}) {
     case 'creepy': eye(L, EY - 2, 1.15, 0.4, true); eye(R, EY - 2, 1.15, 0.4, true);
       quad(0.14 * S, 0.57 * S, 0.5 * S, 0.9 * S, 0.86 * S, 0.57 * S, 0.024);
       path([[0.12 * S, 0.54 * S], [0.16 * S, 0.6 * S]], 0.02); path([[0.88 * S, 0.54 * S], [0.84 * S, 0.6 * S]], 0.02); break;
+    case 'blankSmile': eye(L, EY - 2, 1.12, 0.0); eye(R, EY - 2, 1.12, 0.0); quad(0.2 * S, 0.58 * S, 0.5 * S, 0.86 * S, 0.8 * S, 0.58 * S, 0.024); break;
+    case 'bored': eye(L, EY + 6, 0.95, 0.9); eye(R, EY + 6, 0.95, 0.9); path([[L - 0.08 * S, EY - 0.04 * S], [L + 0.08 * S, EY - 0.04 * S]], 0.03, '#f1c09a'); path([[R - 0.08 * S, EY - 0.04 * S], [R + 0.08 * S, EY - 0.04 * S]], 0.03, '#f1c09a'); path([[0.43 * S, 0.69 * S], [0.57 * S, 0.69 * S]], 0.02); break;
     case 'glow': ell(L + 4, EY, 0.03 * S, 0.03 * S, '#d6e6ff'); ell(R - 4, EY, 0.03 * S, 0.03 * S, '#d6e6ff'); break;
     case 'dog': eye(0.3 * S, 0.4 * S, 1.15); eye(0.7 * S, 0.4 * S, 1.15); break;
     case 'dogScared': eye(0.3 * S, 0.4 * S, 1.2, 0.5, true); eye(0.7 * S, 0.4 * S, 1.2, 0.5, true); brows(-1.2, 0.24 * S); break;

@@ -339,6 +339,8 @@ for i, s in enumerate(script):
         elif ty == 'bark': add(mix_sfx, t, MU.bark())
         elif ty == 'alarm': add(mix_sfx, t, MU.alarm(fx.get('dur', 1.4)))
         elif ty == 'splash': add(mix_sfx, t, MU.splash())
+        elif ty == 'knock': add(mix_sfx, t, MU.knock())
+        elif ty == 'crickets': add(mix_sfx, t, MU.crickets(fx.get('dur', 2.0)))
         elif ty == 'silence': mutes.append((t, t + fx.get('dur', 0.5)))
 
 # original score: per-shot moods crossfaded (see tools/music.py)

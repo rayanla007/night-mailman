@@ -302,3 +302,17 @@ def score(N, starts, durs, moods, xfade=0.12):  # noqa: F811  (adds the heroic s
         for s, d, m in zip(starts, durs, moods): g[int(s * SR):int((s + d) * SR)] = 0.55 if m == 'heroic' else 0
         out += x * np.convolve(g, np.ones(k) / k, mode='same')
     return out
+
+
+def knock():
+    out = np.zeros(int(1.0 * SR))
+    for tt in [0, 0.18, 0.36]:
+        th = tom(110) * 0.8; n = int(0.08 * SR); th[:n] += bp(rng.standard_normal(n), 300, 2500) * env(n, 0.0005, 0.02) * 0.6
+        place(out, tt, lp(th, 3000), 0.9)
+    return out
+
+
+def crickets(d=2.0):
+    n = int(d * SR); t = np.arange(n) / SR
+    chirp = np.sin(2 * np.pi * 4300 * t) * (np.sin(2 * np.pi * 30 * t) > 0.3) * (np.sin(2 * np.pi * 1.6 * t) > 0)
+    return chirp * 0.12

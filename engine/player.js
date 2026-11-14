@@ -10,6 +10,7 @@ import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'; const MSAA = Number(_q.get('msaa') ?? 4); const AO = _q.get('ao') === '1'; // ambient occlusion: barely visible here but doubles render time
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
+import { buildV4 } from './v4.js';
 Object.assign(PRESETS, PRESETS_V3);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
@@ -54,7 +55,8 @@ export async function boot() {
   const camera = new THREE.PerspectiveCamera(40, Wd / Ht, 0.05, 900);
   const W = buildWorld(scene);
   const shots = shotMod.shots;
-  if (shotMod.v3) buildV3(scene, W);
+  if (shotMod.v3 || shotMod.v4) buildV3(scene, W);
+  if (shotMod.v4) buildV4(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(Wd, Ht, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
@@ -91,6 +93,7 @@ export async function boot() {
     if (W.clouds) W.clouds.visible = !!p.clouds;
     if (W.clouds3) W.clouds3.visible = !!p.clouds;
     bloom.strength = p.bloom[0]; bloom.radius = p.bloom[1]; bloom.threshold = p.bloom[2];
+    if (HQ) renderer.toneMappingExposure = p.exposure ?? ({ interiorNight: 1.75, interiorDark: 1.7, nightTown: 1.35, night: 1.4, morning: 1.05 }[name] ?? 1.12);
     W.preset = p;
   }
 
@@ -98,7 +101,7 @@ export async function boot() {
     const setName = shot.set || 'street';
     for (const [n, g] of Object.entries(W.sets)) g.visible = n === setName;
     W.activeSet = W.sets[setName]; W.setName = setName;
-    for (const c of Object.values(W.chars)) { c.group.visible = false; c.setPose({}); c.setFace(c.name === 'Pell' ? 'serious' : c.name === 'Dog' ? 'dog' : 'neutral'); c.group.rotation.set(0, 0, 0); c.group.position.set(0, 0, 0); scene.add(c.group); }
+    for (const c of Object.values(W.chars)) { c.group.visible = false; c.setPose({}); c.setFace(c.name === 'Pell' ? 'serious' : c.name === 'Dog' ? 'dog' : 'neutral'); c.group.rotation.set(0, 0, 0); c.group.position.set(0, 0, 0); c.group.scale.set(1, 1, 1); scene.add(c.group); }
     const P = W.props;
     P.lamp.setOn(1); P.lamp.power = 1; P.clock.setTime('11:59'); P.clock.group.visible = true;
     P.window.setOpen(0); P.curtains.animate(0, 0); P.bedDoor.hinge.rotation.y = 0;
@@ -125,6 +128,11 @@ export async function boot() {
       W.fountain.jet.scale.set(1, 1, 1); W.fountain.water.visible = true; W.siren.light.visible = true;
       for (const k of ['balloon', 'keyProp', 'neckKey']) { const o = W.props[k].group || W.props[k]; o.removeFromParent(); o.visible = true; o.rotation.set(0, 0, 0); }
       if (W.__blobs) W.__blobs.forEach(b => (b.visible = false));
+      if (W.v4) {
+        for (const c of [...Object.values(W.chars), ...W.crowd]) if (c.button) c.button.set('off');
+        W.papers.scale.set(1, 1, 1); W.papers.visible = true; W.setBoard(['2x + 7 = 19']);
+        const ck = W.props.cake.group; ck.removeFromParent();
+      }
     }
     setLighting(shot.light || 'night', setName);
     if (shot.fog) scene.fog = new THREE.Fog(...shot.fog);
@@ -215,7 +223,7 @@ export async function boot() {
         if (ok) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(-w / 2 + 40, 0, 14, 0, 7); ctx.fill(); } else warnIcon(-w / 2 + 40, 0, 16, col);
         ctx.fillStyle = '#ffffff'; ctx.fillText(h.text, 22, 2);
       } else if (h.type === 'tag') {
-        const ch = W.chars[h.char]; if (!ch || !ch.group.visible) { ctx.restore(); continue; }
+        const ch = h.obj || W.chars[h.char]; if (!ch || !ch.group.visible) { ctx.restore(); continue; }
         ch.group.updateMatrixWorld(true);
         projV.set(0, (ch.height || 1.2) / (ch.scale || 1) + 0.35, 0); (ch.body || ch.group).localToWorld(projV); projV.project(camera);
         if (projV.z > 1) { ctx.restore(); continue; }
