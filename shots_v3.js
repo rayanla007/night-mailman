@@ -104,9 +104,9 @@ export const shots = [
 
   // ================= ACT 2: THE FAMILY =================
   // 11
-  { vo: "I'm Ivy.", set: 'square', light: 'bright', music: 'day',
+  { vo: "I'm Leo.", set: 'square', light: 'bright', music: 'day',
     setup(W) { W.put(W.chars.ivy, [-3, 0.12, 14], 0.15); W.chars.ivy.setFace('smile'); },
-    hud: [tag('Ivy, 12', 'ivy', '#c9a0ff', 0.05)],
+    hud: [tag('Leo, 12', 'ivy', '#c9a0ff', 0.05)],
     update(W, t) { W.chars.ivy.setPose({ ...W.Poses.idle(t), shoulderR: [0, 0, -2.6 - 0.3 * Math.sin(t * 10)], elbowR: [0, 0, -0.3 * Math.sin(t * 10 + 1)] }); },
     cam: { from: { pos: [-2.6, 1.6, 16.8], look: [-3, 1.5, 14], fov: 42 }, to: { pos: [-2.7, 1.6, 16.5], look: [-3, 1.52, 14], fov: 41 }, sway: 0.6 } },
   // 12
