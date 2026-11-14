@@ -1,0 +1,42 @@
+THE NIGHT MAILMAN - voiceover script
+Total length 114.00s. Times are when each line starts. [W] = whisper.
+
+ 1    0.00s  (shot 5.77s)  In this town, everyone has a battery bar floating over their head.
+ 2    5.77s  (shot 2.57s)  When it's full, you're happy.
+ 3    8.33s  (shot 4.40s)  When it's empty, you fall asleep wherever you are.
+ 4   12.73s  (shot 3.03s)  In the middle of the street.
+ 5   15.77s  (shot 3.03s)  In the middle of a sentence.
+ 6   18.80s  (shot 3.93s)  Everyone charges at night, in giant charging stations.
+ 7   22.73s  (shot 4.40s)  Plug in. Sleep. Wake up at one hundred percent.
+ 8   27.13s  (shot 2.00s)  Everyone except you.
+ 9   29.13s  (shot 2.57s)  Your battery has never moved.
+10   31.70s  (shot 4.40s)  It's been stuck at one percent your whole life.
+11   36.10s  (shot 2.13s)  Doctors can't explain it.
+12   38.23s  (shot 3.93s)  The charging station won't even let you in.
+13   42.17s  (shot 2.13s)  "Error. Battery not found."
+14   44.30s  (shot 2.57s)  So you just... stay awake.
+15   46.87s  (shot 5.77s)  You're the only one who has ever seen the town at night.
+16   52.63s  (shot 2.00s)  Empty streets.
+17   54.63s  (shot 2.00s)  Every house dark.
+18   56.63s  (shot 2.13s)  Every person plugged in.
+19   58.77s  (shot 4.40s)  But last night, the charging station made a sound.
+20   63.17s  (shot 3.03s)  Something it has never done before.
+21   66.20s  (shot 2.00s)  A voice.
+22   68.20s  (shot 2.13s)  "Charging complete. Begin harvest."
+23   70.33s  (shot 3.47s)  All the batteries in town started draining.
+24   73.80s  (shot 2.57s)  One hundred percent. Seventy. Forty.
+25   76.37s  (shot 2.13s)  Not into the people.
+26   78.50s  (shot 2.00s)  Out of them.
+27   80.50s  (shot 2.00s)  Into the station.
+28   82.50s  (shot 3.47s)  You ran to your mom's charging pod.
+29   85.97s  (shot 3.03s)  Her battery was at twelve percent.
+30   89.00s  (shot 2.13s)  You pulled her plug.
+31   91.13s  (shot 2.13s)  Alarms went off everywhere.
+32   93.27s  (shot 3.93s)  And every head in town turned toward you.
+33   97.20s  (shot 2.00s)  Their eyes opened.
+34   99.20s  (shot 2.57s)  All at the same time.
+35  101.77s  (shot 2.57s) [W]  "Battery not found," they said.
+36  104.33s  (shot 2.00s) [W]  "Battery not found."
+37  106.33s  (shot 2.13s)  That's when you realized.
+38  108.47s  (shot 2.13s)  Your battery isn't broken.
+39  110.60s  (shot 3.40s)  It's the only one they can't eat.

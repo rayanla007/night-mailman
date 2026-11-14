@@ -22,7 +22,7 @@ O = lambda *p: os.path.join(ROOT, 'out' + ('/' + TAG if TAG else ''), *p)
 os.makedirs(B(), exist_ok=True); os.makedirs(O(), exist_ok=True)
 SR = 48000
 TARGET = float(os.environ.get('TARGET_SECONDS', 78.0))
-LEAD, TAIL, MIN_SHOT = 0.06, 0.24, 1.1
+LEAD, TAIL, MIN_SHOT = 0.06, 0.24, float(os.environ.get('MIN_SHOT', 1.1))
 rng = np.random.default_rng(7)
 
 script = json.load(open(B('script.json')))
@@ -81,7 +81,7 @@ def synth_all(ls):
     return lines
 
 
-def durations(lines, est_wps=3.3):
+def durations(lines, est_wps=float(os.environ.get('EST_WPS', 3.3))):
     ds = []
     for s, a in zip(script, lines):
         if s['dur']: ds.append(float(s['dur'])); continue
@@ -93,7 +93,7 @@ def durations(lines, est_wps=3.3):
 
 
 # choose a speaking rate so the film lands on ~60 s
-if BED_ONLY: voice = None
+if BED_ONLY or os.environ.get('NO_TTS') == '1': voice = None  # NO_TTS=1: clip mode, durations estimated from the text
 VOICE_FILE = os.environ.get('VOICE_FILE')  # your own recorded narration (one file, a pause between lines)
 if VOICE_FILE and not BED_ONLY:
     import align_dtw

@@ -115,7 +115,7 @@ function makeCake() {
   return g;
 }
 
-export function buildV4(scene, W) {
+export function buildV4(scene, W, { buttons = true } = {}) {
   const cr = makeClassroom(W); cr.position.set(-800, 0, 0); scene.add(cr); W.sets.classroom = cr;
   const sh = makeShop(W); sh.position.set(-900, 0, 0); scene.add(sh); W.sets.shop = sh;
   W.props.cake = { group: makeCake() };
@@ -129,6 +129,6 @@ export function buildV4(scene, W) {
   Object.assign(W.chars, { jayden, jaydenOld, mom, teacher, repair, postman });
   for (const c of [jayden, jaydenOld, mom, teacher, repair, postman]) scene.add(c.group);
   // everyone gets a wrist button
-  for (const c of [W.chars.ivy, jayden, jaydenOld, mom, teacher, repair, postman, ...W.crowd]) addWristButton(c);
+  if (buttons) for (const c of [W.chars.ivy, jayden, jaydenOld, mom, teacher, repair, postman, ...W.crowd]) addWristButton(c);
   W.v4 = true;
 }

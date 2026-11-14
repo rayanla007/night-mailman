@@ -11,6 +11,7 @@ const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 import { buildV4 } from './v4.js';
+import { buildStation } from './v5.js';
 Object.assign(PRESETS, PRESETS_V3);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
@@ -55,8 +56,10 @@ export async function boot() {
   const camera = new THREE.PerspectiveCamera(40, Wd / Ht, 0.05, 900);
   const W = buildWorld(scene);
   const shots = shotMod.shots;
-  if (shotMod.v3 || shotMod.v4) buildV3(scene, W);
-  if (shotMod.v4) buildV4(scene, W);
+  const kit = shotMod.kit || [];
+  if (shotMod.v3 || shotMod.v4 || kit.length) buildV3(scene, W);
+  if (shotMod.v4 || kit.includes('cast4')) buildV4(scene, W, { buttons: !!shotMod.v4 });
+  if (kit.includes('station')) buildStation(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(Wd, Ht, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
@@ -128,6 +131,7 @@ export async function boot() {
       W.fountain.jet.scale.set(1, 1, 1); W.fountain.water.visible = true; W.siren.light.visible = true;
       for (const k of ['balloon', 'keyProp', 'neckKey']) { const o = W.props[k].group || W.props[k]; o.removeFromParent(); o.visible = true; o.rotation.set(0, 0, 0); }
       if (W.__blobs) W.__blobs.forEach(b => (b.visible = false));
+      if (W.pods) { W.pods.forEach(p => p.setColor('#38e07b')); W.setStationScreen(['CHARGING', 'sleep well, citizens']); W.alarms.forEach(a => a.material.color.set('#552222')); W.stationAmb.color.set('#7fa8ff'); }
       if (W.v4) {
         for (const c of [...Object.values(W.chars), ...W.crowd]) if (c.button) c.button.set('off');
         W.papers.scale.set(1, 1, 1); W.papers.visible = true; W.setBoard(['2x + 7 = 19']);
@@ -234,6 +238,18 @@ export async function boot() {
         rr(-w / 2, -34, w, 68, 18); ctx.fillStyle = 'rgba(25,22,40,0.85)'; ctx.fill();
         ctx.fillStyle = h.color || '#7fd3ff'; ctx.beginPath(); ctx.arc(-w / 2 + 36, -6, 10, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(-w / 2 + 36, 18, 16, Math.PI, 0); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.fillText(h.text, 22, 2);
+      } else if (h.type === 'battery') {
+        const ch = h.obj || W.chars[h.char]; if (!ch || !ch.group.visible) { ctx.restore(); continue; }
+        ch.group.updateMatrixWorld(true); projV.set(0, (ch.height || 1.2) / (ch.scale || 1) + 0.45, 0); (ch.body || ch.group).localToWorld(projV); projV.project(camera);
+        if (projV.z > 1) { ctx.restore(); continue; }
+        const x = (projV.x * 0.5 + 0.5) * Wd, y = (-projV.y * 0.5 + 0.5) * Ht, s = h.size || 1;
+        if (x < -100 || x > Wd + 100 || y < -100 || y > Ht + 100) { ctx.restore(); continue; }
+        const lv = Math.max(0, Math.min(100, h.level)), col = h.color || (lv > 50 ? '#38e07b' : lv > 20 ? '#ffc928' : '#ff3b4e');
+        ctx.translate(x, y); ctx.scale(s * pop, s * pop);
+        rr(-80, -32, 150, 64, 14); ctx.fillStyle = 'rgba(15,15,25,0.85)'; ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+        rr(72, -12, 12, 24, 4); ctx.fillStyle = '#ffffff'; ctx.fill();
+        rr(-72, -24, 134 * lv / 100, 48, 8); ctx.fillStyle = col; ctx.fill();
+        ctx.font = '700 34px Fredoka'; ctx.fillStyle = '#ffffff'; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.strokeText(Math.round(lv) + '%', -5, 2); ctx.fillText(Math.round(lv) + '%', -5, 2);
       } else if (h.type === 'text') {
         ctx.translate(Wd * 0.47, h.y || 300); ctx.scale(pop, pop);
         ctx.font = `900 ${h.size || 70}px Montserrat`; ctx.lineJoin = 'round'; ctx.lineWidth = 16; ctx.strokeStyle = '#000'; ctx.strokeText(h.text, 0, 0); ctx.fillStyle = h.color || '#fff'; ctx.fillText(h.text, 0, 0);
