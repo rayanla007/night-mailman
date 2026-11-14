@@ -23,6 +23,7 @@ LEAD, TAIL, MIN_SHOT = 0.08, 0.30, 1.5
 rng = np.random.default_rng(7)
 
 script = json.load(open(B('script.json')))
+BED_ONLY = '--bed-only' in sys.argv  # music + SFX only, reusing build/timing.json -> out/no_voice.wav
 
 # ---------------- voice ----------------
 MODEL = os.path.join(ROOT, 'tools/piper/en-us-ryan-high.onnx')
@@ -89,6 +90,7 @@ def durations(lines, est_wps=3.3):
 
 
 # choose a speaking rate so the film lands on ~60 s
+if BED_ONLY: voice = None
 if voice is not None:
     lo, hi = 0.62, 1.0; best = None
     for _ in range(7):
@@ -108,6 +110,9 @@ durs = durations(lines)
 durs = [round(d * 30) / 30 for d in durs]
 starts = list(np.cumsum([0] + durs[:-1]))
 total = float(sum(durs))
+if BED_ONLY:
+    _t = json.load(open(B('timing.json')))
+    durs = [x['dur'] for x in _t['shots']]; starts = [x['start'] for x in _t['shots']]; total = _t['total']
 print(f'total {total:.2f}s  (length_scale={ls})')
 
 # ---------------- word timing ----------------
@@ -190,7 +195,7 @@ fast = [w for w in words if w['end'] - w['start'] < MIN_WORD]
 for w in words:
     w['start'] = round(w['start'], 3); w['end'] = round(w['end'], 3)
 
-json.dump({'fps': 30, 'total': total, 'lengthScale': ls,
+if not BED_ONLY: json.dump({'fps': 30, 'total': total, 'lengthScale': ls,
            'shots': [{'n': i + 1, 'start': round(float(starts[i]), 4), 'dur': durs[i]} for i in range(len(durs))],
            'words': words}, open(B('timing.json'), 'w'), indent=1)
 
@@ -336,6 +341,8 @@ def wav(path, x):
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(x16.tobytes())
 
 
+if BED_ONLY:
+    wav(O('no_voice.wav'), mix / (np.abs(mix).max() + 1e-9) * 0.7); print('wrote out/no_voice.wav'); sys.exit(0)
 wav(B('mix.wav'), mix)
 wav(O('voiceover.wav'), vo_track[:int(total * SR)] / (np.abs(vo_track).max() + 1e-9) * 0.9)
 

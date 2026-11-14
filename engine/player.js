@@ -169,7 +169,7 @@ export async function boot() {
 
   window.__frameCount = Math.round(total * FPS);
   window.__total = total;
-  window.renderFrameJpeg = (f) => { renderTime(f / FPS); return out.toDataURL('image/jpeg', 0.93); };
+  window.renderFrameJpeg = (f, captions = true) => { renderTime(f / FPS, { captions }); return out.toDataURL('image/jpeg', 0.93); };
   window.renderShotAt = (i, u) => { const st = timing.shots[i]; current = -1; renderTime(st.start + Math.min(st.dur - 1 / FPS, u * st.dur)); return out.toDataURL('image/jpeg', 0.9); };
   window.__ready = true;
 }

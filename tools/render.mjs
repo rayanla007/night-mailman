@@ -39,7 +39,7 @@ if (mode === 'video') {
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', '30', outFile], { stdio: ['pipe', 'inherit', 'inherit'] });
   const t0 = Date.now();
   for (let f = start; f < end; f++) {
-    const d = await page.evaluate(f => window.renderFrameJpeg(f), f);
+    const d = await page.evaluate(([f, c]) => window.renderFrameJpeg(f, c), [f, !process.env.NO_CAPTIONS]);
     if (!ff.stdin.write(b64(d))) await new Promise(r => ff.stdin.once('drain', r));
     if (f % 30 === 0) console.log(`frame ${f}/${end}  ${((Date.now() - t0) / 1000 / (f - start + 1)).toFixed(2)}s/frame`);
   }
