@@ -94,7 +94,23 @@ def durations(lines, est_wps=3.3):
 
 # choose a speaking rate so the film lands on ~60 s
 if BED_ONLY: voice = None
-if voice is not None:
+VOICE_FILE = os.environ.get('VOICE_FILE')  # your own recorded narration (one file, a pause between lines)
+if VOICE_FILE and not BED_ONLY:
+    import align_voice
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', VOICE_FILE, '-ac', '1', '-ar', str(SR), '-f', 'f32le', '-'], capture_output=True, check=True).stdout
+    rec = np.frombuffer(raw, np.float32).astype(np.float64)
+    spoken = [s for s in script if s['vo']]
+    segs = align_voice.align(rec, SR, [s['tts'] for s in spoken])
+    it = iter(segs); lines = []
+    for s in script:
+        if not s['vo']: lines.append(None); continue
+        a0, a1 = next(it); lines.append(rec[int(a0 * SR):int(a1 * SR)].copy())
+        s['whisper'] = False  # keep the recorded performance as-is
+    ls = 'recorded'; print('aligned', len(segs), 'lines from', VOICE_FILE)
+    with open(B('voice_alignment.txt'), 'w') as f:
+        for s, (a0, a1) in zip(spoken, segs): f.write(f"{a0:8.2f} {a1:8.2f}  {s['vo']}\n")
+    voice = None
+elif voice is not None:
     lo, hi = 0.7, 1.05; best = None
     for _ in range(7):
         mid = (lo + hi) / 2
@@ -105,7 +121,7 @@ if voice is not None:
         else: lo = mid
         if abs(tot - TARGET) < 0.35: break
     ls, lines, tot = best
-else:
+elif not VOICE_FILE or BED_ONLY:
     lines = [None] * len(script); ls = None
 
 durs = durations(lines)
