@@ -1,0 +1,27 @@
+{
+  "name": "night-mailman",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "bash build.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rayanla007/night-mailman.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rayanla007/night-mailman/issues"
+  },
+  "homepage": "https://github.com/rayanla007/night-mailman#readme",
+  "dependencies": {
+    "@fontsource/montserrat": "^5.3.0",
+    "@fontsource/special-elite": "^5.3.0",
+    "playwright": "^1.63.0",
+    "three": "^0.160.0"
+  },
+  "type": "module"
+}
