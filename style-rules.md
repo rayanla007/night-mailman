@@ -1,23 +1,24 @@
-# The Night Mailman — Style Rules
+# The Night Mailman — Style Rules (v2, matched to the reference TikTok look)
 
 Every shot in `shots.js` must follow these rules. They are checked by eye after every render
 (see "Review checklist" at the bottom).
 
 ## Format
 - Vertical 1080 x 1920, 30 fps, about 60 seconds.
-- 30 shots. A new shot about every 2 seconds (range 1.5 s – 3 s, the length follows the voice line).
+- v2: 45 shots, about 80 s; a new shot every 1–2 s (the length follows the voice line).
 
 ## Characters (R15 blocky style)
 - 15 parts: head, upper torso, lower torso, upper arm / lower arm / hand (x2), upper leg / lower leg / foot (x2).
 - Square head, boxy torso, rectangular arms and legs. Slightly rounded box corners (plastic toy feel).
-- Face: two simple black dot eyes and a single line mouth. Expressions only change the dots and the line
-  (smile curve, open "O", worried slant). No noses, no realistic features.
+- Faces (v2): glossy dot eyes with a white highlight, simple brows, blush, and cartoon extras
+  (sweat drop, tears, open laughing mouth). No noses, no realistic features.
 - Hair and hats are blocks stuck on the head. Shirts and pants are flat saturated colours.
 - Characters never bend joints past natural limits and never intersect furniture, walls or each other.
 
 ## Colour
-- Saturated, bright colours. No muddy greys for the main cast.
-- Night scenes: deep navy and blue (sky, fog, ambient, moonlight).
+- Day (v2): bright pastel suburb: blue sky with blocky clouds, cream/pastel houses with green/blue roofs,
+  pink blossom trees, white picket fences, light-grey sidewalks with crosswalks, city skyline far away.
+- Night scenes: medium/deep blue that stays readable (sky, fog, ambient, moonlight).
 - **Warm gold is used ONLY for lamp light.** Gold means safe. Nothing else in a night shot is gold or
   orange: no gold props, no gold clothes, no gold street lights.
 - Danger colours: black silhouette (the Night Mailman), red (the 11:59 clock).
@@ -42,7 +43,8 @@ Every shot in `shots.js` must follow these rules. They are checked by eye after 
 - Shot length follows the voice line so a line never runs into the next shot.
 
 ## Captions
-- One word at a time, bold white, thick black outline, slight pop-in scale.
+- One word at a time, bold yellow (v2), thick black outline, slight pop-in scale.
+- Game-style HUD overlays: a "LIGHTS ON" counter, red warning badge, character name tags.
 - Placed in the lower third (centre around 68 % of the height), horizontally centred, and kept
   clear of the right edge (TikTok buttons): text must stay left of 82 % of the width.
 - Every word stays on screen at least 0.18 s. Shots with no voice line show no caption.

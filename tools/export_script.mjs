@@ -2,6 +2,6 @@
 import fs from 'node:fs';
 import { shots } from '../shots.js';
 fs.mkdirSync('build', { recursive: true });
-const out = shots.map((s, i) => ({ n: i + 1, vo: s.vo || '', tts: s.tts || s.vo || '', whisper: !!s.whisper, dur: s.dur ?? null, extra: s.extra ?? 0, sfx: s.sfx || [] }));
+const out = shots.map((s, i) => ({ n: i + 1, vo: s.vo || '', tts: s.tts || s.vo || '', whisper: !!s.whisper, dur: s.dur ?? null, extra: s.extra ?? 0, sfx: s.sfx || [], music: s.music || 'none' }));
 fs.writeFileSync('build/script.json', JSON.stringify(out, null, 1));
 console.log('script.json:', out.length, 'shots');

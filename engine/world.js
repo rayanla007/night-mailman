@@ -1,10 +1,10 @@
 // World: town street, wider town, bedroom, hallway, lighting presets, cast.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { makeCharacter } from './character.js';
+import { makeCharacter, makeDog } from './character.js';
 import {
   std, basic, rb, box, mesh, canvasTex, makeLamp, makeClock, makeEnvelope, makeLetter, makeDoor, makeSign,
-  makeLantern, makeSack, makeMovingBox, makeCurtain, makeHouse, makeTree, makeMailbox, GLASS_DARK, GLASS_LIT,
+  makeLantern, makeSack, makeMovingBox, makeCurtain, makeHouse, makeTree, makeMailbox, GLASS_DARK, GLASS_LIT, makePicketFence, makeCloud, makeTower, makeRulesPaper, makeScrap, makeTruck, makeFlagMailbox,
 } from './props.js';
 
 // Merge all static meshes of a group into one mesh per material (fewer draw calls).
@@ -81,14 +81,15 @@ export function buildWorld(scene) {
 
   // ---------- STREET / TOWN (origin) ----------
   const street = new THREE.Group(); street.name = 'street'; scene.add(street); W.sets.street = street;
-  const ground = mesh(new THREE.PlaneGeometry(600, 600), std('#1d7a46', { roughness: 0.95 }), 0, 0, 0, street, { cast: false });
+  const ground = mesh(new THREE.PlaneGeometry(600, 600), std('#5cc95a', { roughness: 0.95 }), 0, 0, 0, street, { cast: false });
   ground.rotation.x = -Math.PI / 2;
-  const roadMat = std('#262b45', { roughness: 0.9 }), walkMat = std('#8c93b3', { roughness: 0.9 });
+  const roadMat = std('#4a505e', { roughness: 0.9 }), walkMat = std('#dfe3ea', { roughness: 0.9 });
   const roads = new THREE.Group(); street.add(roads);
   for (const rx of [0, 36, -36]) {
     mesh(box(7, 0.06, 260), roadMat, rx, 0.03, -50, roads, { cast: false });
     for (const s of [1, -1]) mesh(box(2, 0.12, 260), walkMat, rx + s * 4.5, 0.06, -50, roads, { cast: false });
-    for (let z = -178; z < 80; z += 6) mesh(box(0.25, 0.07, 2.6), std('#aab3d6'), rx, 0.04, z, roads, { cast: false });
+    for (let z = -178; z < 80; z += 6) mesh(box(0.25, 0.07, 2.6), std('#ffffff'), rx, 0.04, z, roads, { cast: false });
+    for (const cz of [-86, 26]) for (let k = -3; k <= 3; k++) mesh(box(0.7, 0.07, 3.0), std('#ffffff'), rx + k * 0.95, 0.045, cz, roads, { cast: false });
   }
   for (const cz of [-90, 30]) mesh(box(80, 0.065, 7), roadMat, 0, 0.035, cz, roads, { cast: false });
 
@@ -108,7 +109,8 @@ export function buildWorld(scene) {
       h.side = side; h.z = z; h.special = special; h.pattern = pattern;
       houses.push(h);
       // yard extras
-      if (seed % 3 === 0 && !(side === -1 && z > -6 && z < 16) && !(side === 1 && z > -22 && z < 2)) { const t = makeTree(seed, 0.9); t.position.set(side * 6.8, 0, z + 4.2); mainHouses.add(t); }
+      if (!(side === 1 && z > -22 && z < 2)) { const t = makeTree(seed, 0.95); t.position.set(side * 9.2, 0, z + 5); mainHouses.add(t); }
+      for (const [z0, z1] of [[z - 3.4, z - 0.9], [z + 0.9, z + 3.4]]) { const f = makePicketFence(z1 - z0); f.position.set(side * 5.75, 0, (z0 + z1) / 2); f.rotation.y = Math.PI / 2; mainHouses.add(f); }
       if (!(side === -1 && (z === 0 || z === 10))) {
       const mb = makeMailbox(); mb.position.set(side * 5.9, 0, z - 2.2); mb.rotation.y = side === -1 ? Math.PI / 2 : -Math.PI / 2; mainHouses.add(mb); }
     }
@@ -140,13 +142,19 @@ export function buildWorld(scene) {
     const b = makeMovingBox(); b.group.position.set(x, y, z); b.group.rotation.y = r; street.add(b.group);
   }
   // fences between Mia and Pell
-  for (let x = -7.5; x > -16; x -= 1.0) mesh(rb(0.16, 1.0, 0.16, 0.03), std('#e9edf8'), x, 0.5, 5.2, street);
-  mesh(box(8.6, 0.12, 0.08), std('#e9edf8'), -11.7, 0.8, 5.2, street);
-  mesh(box(8.6, 0.12, 0.08), std('#e9edf8'), -11.7, 0.45, 5.2, street);
+  { const f = makePicketFence(2.2); f.position.set(-7.0, 0, 5.0); street.add(f); }
+  // sky decor: clouds + city skyline
+  const clouds = new THREE.Group(); street.add(clouds); W.clouds = clouds;
+  for (let i = 0; i < 14; i++) { const c = makeCloud(i); c.position.set(-160 + (i * 97) % 320, 55 + (i * 13) % 30, -220 + (i * 61) % 260); c.scale.setScalar(0.9 + (i % 3) * 0.3); clouds.add(c); }
+  const skyline = new THREE.Group(); street.add(skyline);
+  const tc = ['#dfe7f2', '#cfdcec', '#e8e2d6', '#d4e4e8'];
+  for (let i = 0; i < 22; i++) { const h = 30 + (i * 37) % 60, w = 12 + (i * 7) % 10; const t = makeTower(w, h, 12, tc[i % 4], i); t.position.set(-130 + i * 12.5, 0, -205 - (i % 3) * 14); skyline.add(t); }
+  for (let i = 0; i < 8; i++) { const h = 28 + (i * 29) % 50; const t = makeTower(14, h, 12, tc[(i + 1) % 4], i); t.position.set(-80 + i * 22, 0, 110 + (i % 2) * 12); skyline.add(t); }
+  W.skyline = skyline;
 
   // ---------- BEDROOM (x = 500) ----------
   const bed = new THREE.Group(); bed.name = 'bedroom'; bed.position.set(500, 0, 0); scene.add(bed); W.sets.bedroom = bed;
-  const wallM = std('#aab4ff', { roughness: 0.85 }), trimM = std('#eef3ff'), floorM = std('#8a5a3c', { roughness: 0.7 });
+  const wallM = std('#86a6f2', { roughness: 0.85 }), trimM = std('#eef3ff'), floorM = std('#8a5a3c', { roughness: 0.7 });
   const floorTex = canvasTex(512, 512, (x, w, h) => {
     for (let i = 0; i < 8; i++) { x.fillStyle = i % 2 ? '#8a5a3c' : '#7c5035'; x.fillRect(0, i * 64, w, 64); x.fillStyle = '#5d3a25'; x.fillRect(0, i * 64, w, 3); x.fillRect(((i * 197) % 400) + 40, i * 64, 3, 64); }
   });
@@ -292,12 +300,14 @@ export function buildWorld(scene) {
   }
 
   // ---------- CAST ----------
-  const mia = makeCharacter({ name: 'Mia', skin: '#f3c39a', shirt: '#ff2e88', pants: '#2b5cff', shoes: '#ffffff', hair: 'mia', hairColor: '#3b1f12', scale: 0.92 });
-  const theo = makeCharacter({ name: 'Theo', skin: '#f3c39a', shirt: '#36d1ff', sleeves: '#36d1ff', pants: '#36d1ff', shoes: '#e9f0ff', hair: 'theo', hairColor: '#4a2a17', scale: 0.7 });
-  const pell = makeCharacter({ name: 'Pell', skin: '#e9b48d', shirt: '#1f9e5a', pants: '#4b4f72', shoes: '#2b1d16', hair: 'pell', hairColor: '#d9dde8', hatColor: '#5a2340', scale: 1.04, face: 'serious' });
+  const mia = makeCharacter({ name: 'Mia', skin: '#f3c39a', shirt: '#ff4fa3', print: 'hoodie', pants: '#2f5fe0', shoes: '#ffffff', hair: 'mia', hairColor: '#5a3220', scale: 0.92 });
+  const theo = makeCharacter({ name: 'Theo', skin: '#f3c39a', shirt: '#4ec3ff', print: 'pj', sleeves: '#4ec3ff', pants: '#4ec3ff', shoes: '#e9f0ff', hair: 'theo', hairColor: '#4a2a17', scale: 0.7 });
+  const theoDay = makeCharacter({ name: 'TheoDay', skin: '#f3c39a', shirt: '#ffd23a', print: 'star', pants: '#2f5fe0', shoes: '#ff4d4d', hair: 'theo', hairColor: '#4a2a17', scale: 0.7 });
+  const pell = makeCharacter({ name: 'Pell', skin: '#e9b48d', shirt: '#3f8f6a', print: 'cardigan', pants: '#565a7d', shoes: '#2b1d16', hair: 'pell', hairColor: '#d9dde8', hatColor: '#5a2340', scale: 1.04, face: 'serious' });
   const mailman = makeCharacter({ name: 'Mailman', hair: 'mailman', silhouette: true, scale: 1.25, proportions: { leg: 1.75, arm: 1.75, torso: 1.45, width: 0.72 } });
   const figure = makeCharacter({ name: 'Figure', hair: 'theo', silhouette: true, scale: 0.42 });
-  W.chars = { mia, theo, pell, mailman, figure };
+  const dog = makeDog();
+  W.chars = { mia, theo, theoDay, pell, mailman, figure, dog };
   for (const c of Object.values(W.chars)) scene.add(c.group);
   // held props
   const lantern = makeLantern(); W.props.lantern = lantern;
@@ -306,16 +316,21 @@ export function buildWorld(scene) {
   const env = makeEnvelope('THEO'); W.props.envelope = env; scene.add(env.group);
   const letter = makeLetter(); W.props.letter = letter; scene.add(letter.group);
   const heldBox = makeMovingBox("MIA'S STUFF"); W.props.heldBox = heldBox;
+  const rules = makeRulesPaper(); W.props.rules = rules; scene.add(rules.group);
+  const scrap = makeScrap(); W.props.scrap = scrap; scene.add(scrap.group);
+  const truck = makeTruck(); truck.position.set(-2.0, 0, -6.5); street.add(truck); W.props.truck = truck;
+  const mbox = makeFlagMailbox(); mbox.group.position.set(-5.2, 0, -1.6); mbox.group.rotation.y = Math.PI / 2; street.add(mbox.group); W.props.mailbox = mbox;
 
   return W;
 }
 
 // ---------- lighting presets ----------
 export const PRESETS = {
-  night: { top: '#03081f', mid: '#0f2466', bottom: '#14306e', fog: '#0c1d55', fogNear: 25, fogFar: 160, hemi: ['#5d7bff', '#0a1130', 1.1], key: ['#a9c0ff', 1.7], fill: 0.35, stars: true, moon: true, bloom: [0.7, 0.5, 0.62] },
+  day: { top: '#2f8cff', mid: '#8fd0ff', bottom: '#dff3ff', fog: '#cfe9ff', fogNear: 80, fogFar: 520, hemi: ['#ffffff', '#7fa86a', 1.9], key: ['#fff6e8', 3.0], fill: 0.6, stars: false, moon: false, clouds: true, bloom: [0.25, 0.4, 0.98] },
+  night: { top: '#071440', mid: '#1c3a8f', bottom: '#2a4fa8', fog: '#1a3478', fogNear: 30, fogFar: 260, hemi: ['#7d9bff', '#1a2a5c', 1.5], key: ['#b9cdff', 1.8], fill: 0.45, stars: true, moon: true, bloom: [0.7, 0.5, 0.62] },
   dusk: { top: '#1b1960', mid: '#5b3fbf', bottom: '#2a64d8', fog: '#4a3fa8', fogNear: 30, fogFar: 200, hemi: ['#a9a6ff', '#1d2a66', 1.6], key: ['#d7c9ff', 2.2], fill: 0.6, stars: false, moon: true, bloom: [0.6, 0.5, 0.75] },
-  interiorNight: { top: '#03081f', mid: '#0f2466', bottom: '#14306e', fog: '#0a1640', fogNear: 14, fogFar: 90, hemi: ['#4a63d9', '#0a0f2a', 0.7], key: ['#9fb8ff', 2.4], fill: 0.12, stars: true, moon: true, bloom: [0.7, 0.45, 0.82] },
+  interiorNight: { top: '#071440', mid: '#1c3a8f', bottom: '#2a4fa8', fog: '#1a3478', fogNear: 14, fogFar: 90, hemi: ['#6f8fff', '#1a2450', 1.0], key: ['#9fb8ff', 2.4], fill: 0.12, stars: true, moon: true, bloom: [0.7, 0.45, 0.82] },
   townFinal: { top: '#03081f', mid: '#10276e', bottom: '#14306e', fog: '#0c1d55', fogNear: 120, fogFar: 520, hemi: ['#6d88ff', '#0c1538', 1.4], key: ['#a9c0ff', 1.6], fill: 0.4, stars: true, moon: true, bloom: [1.6, 0.6, 0.45] },
-  interiorDark: { top: '#02061a', mid: '#0a1a50', bottom: '#0e2358', fog: '#050c26', fogNear: 14, fogFar: 90, hemi: ['#3550c8', '#05081a', 0.5], key: ['#8eaaff', 2.2], fill: 0.05, stars: true, moon: true, bloom: [0.7, 0.45, 0.8] },
+  interiorDark: { top: '#050f33', mid: '#16317a', bottom: '#20408f', fog: '#0f2160', fogNear: 14, fogFar: 90, hemi: ['#5a7be6', '#101a40', 0.85], key: ['#8eaaff', 2.2], fill: 0.05, stars: true, moon: true, bloom: [0.7, 0.45, 0.8] },
   morning: { top: '#3d8bff', mid: '#8cc8ff', bottom: '#d4ecff', fog: '#cfe6ff', fogNear: 30, fogFar: 200, hemi: ['#e6f2ff', '#7a8fb8', 1.7], key: ['#ffffff', 3.2], fill: 0.5, stars: false, moon: false, bloom: [0.5, 0.4, 0.97] },
 };

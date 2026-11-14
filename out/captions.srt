@@ -1,116 +1,180 @@
 1
-00:00:00,080 --> 00:00:02,408
-In this town, there's one strange rule.
+00:00:00,060 --> 00:00:02,113
+My town has 412 houses.
 
 2
-00:00:02,547 --> 00:00:04,910
-Every house keeps one light on at midnight.
+00:00:02,193 --> 00:00:04,713
+And at midnight, every single one has a light on.
 
 3
-00:00:05,047 --> 00:00:06,144
-No exceptions.
+00:00:04,793 --> 00:00:06,447
+Not because we're scared of the dark.
 
 4
-00:00:06,547 --> 00:00:08,373
-My family moved here last week.
+00:00:06,527 --> 00:00:07,980
+Because of what delivers the mail.
 
 5
-00:00:08,513 --> 00:00:10,280
-Our neighbor warned us right away.
+00:00:08,060 --> 00:00:09,480
+We moved in on a Tuesday.
 
 6
-00:00:10,380 --> 00:00:12,145
-If your window goes dark at twelve...
+00:00:09,560 --> 00:00:11,080
+Me, my little brother Theo...
 
 7
-00:00:12,247 --> 00:00:13,704
-...the Night Mailman visits.
+00:00:11,160 --> 00:00:13,147
+...and Biscuit, the world's worst guard dog.
 
 8
-00:00:13,847 --> 00:00:15,232
-I thought it was a joke.
+00:00:13,227 --> 00:00:15,613
+Our neighbor, Mr. Pell, didn't say hello.
 
 9
-00:00:15,347 --> 00:00:17,594
-My little brother Theo thought so too.
+00:00:15,693 --> 00:00:17,447
+He just pointed at our windows...
 
 10
-00:00:17,713 --> 00:00:19,602
-He hated sleeping with the light on.
+00:00:17,527 --> 00:00:19,713
+...and said, 'Keep one on. Always.'
 
 11
-00:00:19,713 --> 00:00:21,461
-11:59 PM.
+00:00:19,793 --> 00:00:21,847
+Theo laughed. Theo laughs at everything.
 
 12
-00:00:21,580 --> 00:00:22,719
-He switched it off.
+00:00:21,927 --> 00:00:25,080
+That night, I found the town rules taped inside our mailbox.
 
 13
-00:00:23,080 --> 00:00:24,180
-Then... silence.
+00:00:25,160 --> 00:00:27,213
+Rule one: keep a light on at midnight.
 
 14
-00:00:25,680 --> 00:00:28,136
-Twelve o'clock. Something slid under the door.
+00:00:27,293 --> 00:00:29,580
+Rule two: never open a letter with no stamp.
 
 15
-00:00:29,980 --> 00:00:31,202
-Theo opened it.
+00:00:29,660 --> 00:00:30,813
+Rule three... was torn off.
 
 16
-00:00:31,480 --> 00:00:33,313
-It said: Your light is off.
+00:00:30,893 --> 00:00:32,280
+11:58 PM.
 
 17
-00:00:33,413 --> 00:00:34,929
-Come out and see ours.
+00:00:32,360 --> 00:00:34,113
+Theo hates sleeping with the light on.
 
 18
-00:00:35,047 --> 00:00:36,307
-I ran to his room.
+00:00:34,193 --> 00:00:35,713
+So he did the dumbest thing ever.
 
 19
-00:00:36,547 --> 00:00:37,888
-The window was open.
+00:00:35,793 --> 00:00:36,331
+Click.
 
 20
-00:00:38,047 --> 00:00:41,113
-I screamed. Mr. Pell was already at our door.
+00:00:37,393 --> 00:00:38,747
+Biscuit started growling.
 
 21
-00:00:41,213 --> 00:00:42,439
-Don't go out there.
+00:00:38,827 --> 00:00:39,947
+Biscuit never growls.
 
 22
-00:00:42,713 --> 00:00:43,911
-Light the lamp. Hurry.
+00:00:40,027 --> 00:00:40,939
+Twelve o'clock.
 
 23
-00:00:44,213 --> 00:00:45,637
-The room glowed gold.
+00:00:41,127 --> 00:00:42,580
+Something slid under the door.
 
 24
-00:00:45,780 --> 00:00:47,642
-Outside, the footsteps stopped.
+00:00:42,660 --> 00:00:43,847
+A letter. No stamp.
 
 25
-00:00:47,780 --> 00:00:49,319
-By morning, he was home.
+00:00:43,927 --> 00:00:45,313
+Theo opened it anyway.
 
 26
-00:00:49,447 --> 00:00:50,951
-But he just smiles now.
+00:00:45,393 --> 00:00:46,847
+It said: Your light is off.
 
 27
-00:00:51,780 --> 00:00:55,234
-Every night at 11:59, he asks to turn off the lamp.
+00:00:46,927 --> 00:00:48,180
+Come out and see ours.
 
 28
-00:00:55,380 --> 00:00:56,478
-I never let him.
+00:00:48,260 --> 00:00:49,647
+Then I heard the window creak.
 
 29
-00:00:56,880 --> 00:00:57,919
+00:00:49,727 --> 00:00:50,880
+I ran to his room.
+
+30
+00:00:50,960 --> 00:00:52,047
+His bed was empty.
+
+31
+00:00:52,127 --> 00:00:55,013
+And outside, a tall man with a mail sack was walking away...
+
+32
+00:00:55,093 --> 00:00:56,413
+...holding Theo's hand.
+
+33
+00:00:56,493 --> 00:00:59,213
+I screamed. Mr. Pell was already at our door.
+
+34
+00:00:59,293 --> 00:01:01,280
+Don't chase him. Turn your light back on.
+
+35
+00:01:01,360 --> 00:01:02,380
+I slammed the switch.
+
+36
+00:01:02,460 --> 00:01:04,213
+Every light in Hollow Creek flickered.
+
+37
+00:01:04,293 --> 00:01:05,447
+And the footsteps... stopped.
+
+38
+00:01:05,527 --> 00:01:07,380
+In the morning, Theo was back in bed.
+
+39
+00:01:07,460 --> 00:01:08,847
+He doesn't remember anything.
+
+40
+00:01:08,927 --> 00:01:10,780
+But Biscuit won't go near him anymore.
+
+41
+00:01:10,860 --> 00:01:12,780
+And every night, at 11:59...
+
+42
+00:01:12,860 --> 00:01:14,684
+...he asks me to turn off the lamp.
+
+43
+00:01:14,960 --> 00:01:17,180
+Last night, I found the rest of rule three.
+
+44
+00:01:17,260 --> 00:01:19,009
+If they come back... they're not yours.
+
+45
+00:01:19,193 --> 00:01:20,239
 Keep your light on.
 

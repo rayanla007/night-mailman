@@ -46,7 +46,7 @@ export async function boot() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, Wd / Ht, 0.05, 900);
   const W = buildWorld(scene);
-  W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT;
+  W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
@@ -70,6 +70,7 @@ export async function boot() {
     W.hemi.color.set(p.hemi[0]); W.hemi.groundColor.set(p.hemi[1]); W.hemi.intensity = p.hemi[2];
     W.key.color.set(p.key[0]); W.key.intensity = p.key[1]; W.fill.intensity = p.fill;
     W.stars.visible = p.stars; W.moonDisc.visible = W.moonHalo.visible = p.moon;
+    if (W.clouds) W.clouds.visible = !!p.clouds;
     bloom.strength = p.bloom[0]; bloom.radius = p.bloom[1]; bloom.threshold = p.bloom[2];
     W.preset = p;
   }
@@ -78,18 +79,20 @@ export async function boot() {
     const setName = shot.set || 'street';
     for (const [n, g] of Object.entries(W.sets)) g.visible = n === setName;
     W.activeSet = W.sets[setName]; W.setName = setName;
-    for (const c of Object.values(W.chars)) { c.group.visible = false; c.setPose({}); c.setFace(c.name === 'Pell' ? 'serious' : 'neutral'); c.group.rotation.set(0, 0, 0); scene.add(c.group); }
+    for (const c of Object.values(W.chars)) { c.group.visible = false; c.setPose({}); c.setFace(c.name === 'Pell' ? 'serious' : c.name === 'Dog' ? 'dog' : 'neutral'); c.group.rotation.set(0, 0, 0); scene.add(c.group); }
     const P = W.props;
     P.lamp.setOn(1); P.lamp.power = 1; P.clock.setTime('11:59'); P.clock.group.visible = true;
     P.window.setOpen(0); P.curtains.animate(0, 0); P.bedDoor.hinge.rotation.y = 0;
     P.frontDoor.setOpen(0); P.theoDoor.setOpen(0); P.ceiling.visible = true;
-    for (const k of ['envelope', 'letter']) { P[k].group.visible = false; P[k].group.rotation.set(0, 0, 0); scene.add(P[k].group); }
+    P.mailbox.setFlag(1.5); P.mailbox.setDoor(0); grade.uniforms.sat.value = 1.12;
+    for (const k of ['envelope', 'letter', 'rules', 'scrap']) { P[k].group.visible = false; P[k].group.rotation.set(0, 0, 0); scene.add(P[k].group); }
     P.lantern.group.removeFromParent(); P.heldBox.group.removeFromParent();
     P.blanket.position.set(0, 0.62, 0.38); P.blanket.scale.set(1, 1, 1);
     for (const h of W.houses) h.windows.forEach((win, i) => win.setLit(h.pattern[i] && i !== h.special));
     if (W.farDarkGlass) W.farDarkGlass.material = GLASS_DARK;
     W.cool.intensity = 0;
     W.farTown.visible = true;
+    W.props.truck.visible = (shot.light || 'night') === 'day';
     setLighting(shot.light || 'night', setName);
     if (shot.fog) scene.fog = new THREE.Fog(...shot.fog);
     // moon/key light direction relative to set
@@ -135,21 +138,65 @@ export async function boot() {
     if (!word) return;
     const age = time - word.start;
     const pop = 1 + 0.22 * Math.max(0, 1 - age / 0.09);
-    let size = 112;
+    let size = 92;
     ctx.save();
     ctx.font = `900 ${size}px Montserrat`;
     const text = word.text.toUpperCase();
     const maxW = 760; // keeps clear of right edge
     let wTxt = ctx.measureText(text).width;
     if (wTxt > maxW) { size = Math.floor(size * maxW / wTxt); ctx.font = `900 ${size}px Montserrat`; wTxt = ctx.measureText(text).width; }
-    const cx = Wd * 0.46, cy = Ht * 0.68;
+    const cx = Wd * 0.47, cy = Ht * 0.66;
     ctx.translate(cx, cy); ctx.scale(pop, pop);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
     ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 9;
-    ctx.lineWidth = size * 0.24; ctx.strokeStyle = '#000'; ctx.strokeText(text, 0, 0);
+    ctx.lineWidth = size * 0.26; ctx.strokeStyle = '#000'; ctx.strokeText(text, 0, 0);
     ctx.shadowColor = 'transparent';
-    ctx.fillStyle = word.color || '#ffffff'; ctx.fillText(text, 0, 0);
+    ctx.fillStyle = word.color || '#ffe14a'; ctx.fillText(text, 0, 0);
     ctx.restore();
+  }
+
+  // ---------- HUD overlays (game-style labels) ----------
+  const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); };
+  const warnIcon = (x, y, s, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s * 1.1, y + s * 0.8); ctx.lineTo(x - s * 1.1, y + s * 0.8); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#000'; ctx.font = `900 ${s * 1.2}px Montserrat`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y + s * 0.15); };
+  const projV = new THREE.Vector3();
+  function drawHUD(shot, t, u) {
+    for (const h0 of shot.hud || []) {
+      const h = typeof h0 === 'function' ? h0(t, u, W) : h0;
+      if (!h || (h.from != null && u < h.from) || (h.to != null && u > h.to)) continue;
+      const age = t - (h.from != null ? h.from * timing.shots[current].dur : 0);
+      const pop = 1 + 0.25 * Math.max(0, 1 - age / 0.12);
+      ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if (h.type === 'counter') {
+        const cx = Wd * 0.47, cy = h.y || 190; ctx.translate(cx, cy); const pulse = h.pulse ? 1 + 0.06 * Math.sin(t * 18) : 1; ctx.scale(pop * pulse, pop * pulse);
+        rr(-280, -82, 560, 164, 26); ctx.fillStyle = 'rgba(16,14,28,0.92)'; ctx.fill(); ctx.lineWidth = 8; ctx.strokeStyle = h.border || '#ffcf3a'; ctx.stroke();
+        ctx.fillStyle = '#ffffff'; ctx.font = '900 36px Montserrat'; ctx.fillText(h.label, 0, -38);
+        ctx.fillStyle = h.color || '#ffe14a'; ctx.font = '900 84px Montserrat'; ctx.fillText(h.value, 0, 30);
+      } else if (h.type === 'badge') {
+        const ok = h.kind === 'ok', col = ok ? '#38e07b' : '#ff3b4e';
+        ctx.font = '900 40px Montserrat'; const w = ctx.measureText(h.text).width + 110;
+        const blink = ok ? 1 : (0.65 + 0.35 * Math.abs(Math.sin(t * 6)));
+        ctx.translate(Wd * 0.47, h.y || 86); ctx.scale(pop, pop); ctx.globalAlpha = blink;
+        rr(-w / 2, -36, w, 72, 36); ctx.fillStyle = 'rgba(20,10,16,0.88)'; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = col; ctx.stroke();
+        if (ok) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(-w / 2 + 40, 0, 14, 0, 7); ctx.fill(); } else warnIcon(-w / 2 + 40, 0, 16, col);
+        ctx.fillStyle = '#ffffff'; ctx.fillText(h.text, 22, 2);
+      } else if (h.type === 'tag') {
+        const ch = W.chars[h.char]; if (!ch || !ch.group.visible) { ctx.restore(); continue; }
+        ch.group.updateMatrixWorld(true);
+        projV.set(0, (ch.height || 1.2) / (ch.scale || 1) + 0.35, 0); (ch.body || ch.group).localToWorld(projV); projV.project(camera);
+        if (projV.z > 1) { ctx.restore(); continue; }
+        let x = (projV.x * 0.5 + 0.5) * Wd, y = (-projV.y * 0.5 + 0.5) * Ht;
+        x = Math.min(Wd * 0.72, Math.max(Wd * 0.18, x)); y = Math.max(300, Math.min(Ht * 0.55, y));
+        ctx.font = '900 46px Montserrat'; const w = ctx.measureText(h.text).width + 90;
+        ctx.translate(x, y); ctx.scale(pop, pop);
+        rr(-w / 2, -34, w, 68, 18); ctx.fillStyle = 'rgba(25,22,40,0.85)'; ctx.fill();
+        ctx.fillStyle = h.color || '#7fd3ff'; ctx.beginPath(); ctx.arc(-w / 2 + 36, -6, 10, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(-w / 2 + 36, 18, 16, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.fillText(h.text, 22, 2);
+      } else if (h.type === 'text') {
+        ctx.translate(Wd * 0.47, h.y || 300); ctx.scale(pop, pop);
+        ctx.font = `900 ${h.size || 70}px Montserrat`; ctx.lineJoin = 'round'; ctx.lineWidth = 16; ctx.strokeStyle = '#000'; ctx.strokeText(h.text, 0, 0); ctx.fillStyle = h.color || '#fff'; ctx.fillText(h.text, 0, 0);
+      }
+      ctx.restore();
+    }
   }
 
   function renderTime(time, { captions = true } = {}) {
@@ -163,12 +210,15 @@ export async function boot() {
     placeLights(c.look);
     composer.render();
     ctx.drawImage(canvas, 0, 0);
+    drawHUD(shot, t, u);
     if (captions) drawCaption(time);
     return out;
   }
 
   window.__frameCount = Math.round(total * FPS);
   window.__total = total;
+  // one 3D render -> [clean frame (no captions), captioned frame]
+  window.renderFrameBoth = (f) => { renderTime(f / FPS, { captions: false }); const clean = out.toDataURL('image/jpeg', 0.93); drawCaption(f / FPS); return [clean, out.toDataURL('image/jpeg', 0.93)]; };
   window.renderFrameJpeg = (f, captions = true) => { renderTime(f / FPS, { captions }); return out.toDataURL('image/jpeg', 0.93); };
   window.renderShotAt = (i, u) => { const st = timing.shots[i]; current = -1; renderTime(st.start + Math.min(st.dur - 1 / FPS, u * st.dur)); return out.toDataURL('image/jpeg', 0.9); };
   window.__ready = true;

@@ -11,67 +11,133 @@ function rbox(w, h, d, r = 0.035) {
 
 // ---------- faces ----------
 const FACE_SIZE = 256;
+// Expressive cartoon faces (glossy eyes, brows, blush, tears, sweat), one canvas per expression.
 function drawFace(expr, opts = {}) {
   const c = document.createElement('canvas');
   c.width = c.height = FACE_SIZE;
   const g = c.getContext('2d');
   const S = FACE_SIZE;
-  const ink = opts.ink || '#111';
-  g.fillStyle = ink; g.strokeStyle = ink; g.lineCap = 'round'; g.lineJoin = 'round';
-  const ex = 0.3 * S, ey = 0.42 * S, er = (opts.eyeR || 0.065) * S;
-  const eye = (x, y, r = er) => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); };
-  const line = (pts, w = 0.045 * S) => { g.lineWidth = w; g.beginPath(); g.moveTo(...pts[0]); for (const p of pts.slice(1)) g.lineTo(...p); g.stroke(); };
-  const curve = (x0, y0, cx, cy, x1, y1, w = 0.045 * S) => { g.lineWidth = w; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(cx, cy, x1, y1); g.stroke(); };
-  const L = S / 2 - ex * 0.55, R = S / 2 + ex * 0.55;
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  const ink = '#1a1420';
+  const L = 0.34 * S, R = 0.66 * S, EY = 0.44 * S;
+  const ell = (x, y, rx, ry, col) => { g.fillStyle = col; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); };
+  const stroke = (w, col = ink) => { g.lineWidth = w * S; g.strokeStyle = col; };
+  const path = (pts, w, col) => { stroke(w, col); g.beginPath(); g.moveTo(...pts[0]); for (const p of pts.slice(1)) g.lineTo(...p); g.stroke(); };
+  const quad = (x0, y0, cx, cy, x1, y1, w, col) => { stroke(w, col); g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(cx, cy, x1, y1); g.stroke(); };
+  // glossy eye: dark oval + white highlight (size k, pupil shrink p)
+  const eye = (x, y, k = 1, p = 1, white = false) => {
+    if (white) ell(x, y, 0.085 * S * k, 0.1 * S * k, '#ffffff'), stroke(0.014), g.stroke();
+    ell(x, y, 0.055 * S * k * p, 0.068 * S * k * p, ink);
+    ell(x - 0.018 * S * k, y - 0.024 * S * k, 0.019 * S * k, 0.022 * S * k, '#ffffff');
+    ell(x + 0.016 * S * k * p, y + 0.02 * S * k * p, 0.008 * S * k, 0.008 * S * k, 'rgba(255,255,255,0.8)');
+  };
+  const happyEye = (x, y) => quad(x - 0.06 * S, y + 0.02 * S, x, y - 0.06 * S, x + 0.06 * S, y + 0.02 * S, 0.03);
+  const closedEye = (x, y) => quad(x - 0.06 * S, y - 0.01 * S, x, y + 0.04 * S, x + 0.06 * S, y - 0.01 * S, 0.026);
+  const brows = (tilt, y = EY - 0.13 * S, w = 0.028) => { // tilt>0 angry (inner down), <0 worried
+    path([[L - 0.07 * S, y - tilt * 0.03 * S], [L + 0.06 * S, y + tilt * 0.03 * S]], w);
+    path([[R + 0.07 * S, y - tilt * 0.03 * S], [R - 0.06 * S, y + tilt * 0.03 * S]], w);
+  };
+  const blush = (a = 0.55) => { ell(0.2 * S, 0.6 * S, 0.06 * S, 0.035 * S, `rgba(255,110,140,${a})`); ell(0.8 * S, 0.6 * S, 0.06 * S, 0.035 * S, `rgba(255,110,140,${a})`); };
+  const openMouth = (x, y, w, h, tongue = true) => {
+    g.fillStyle = '#5a1020'; g.beginPath(); g.moveTo(x - w, y); g.quadraticCurveTo(x, y + h * 2, x + w, y); g.closePath(); g.fill();
+    if (tongue) { g.save(); g.clip(); ell(x, y + h * 1.1, w * 0.55, h * 0.55, '#ff6b8a'); g.restore(); }
+    g.fillStyle = '#ffffff'; g.fillRect(x - w * 0.7, y, w * 1.4, h * 0.22);
+  };
+  const sweat = () => { g.fillStyle = '#7fd3ff'; g.beginPath(); g.moveTo(0.83 * S, 0.22 * S); g.quadraticCurveTo(0.88 * S, 0.33 * S, 0.83 * S, 0.35 * S); g.quadraticCurveTo(0.78 * S, 0.33 * S, 0.83 * S, 0.22 * S); g.fill(); };
+  const tears = () => { g.fillStyle = 'rgba(90,180,255,0.9)'; g.fillRect(L - 0.025 * S, EY + 0.05 * S, 0.05 * S, 0.34 * S); g.fillRect(R - 0.025 * S, EY + 0.05 * S, 0.05 * S, 0.34 * S); };
   switch (expr) {
-    case 'sleep':
-      line([[L - er, ey], [L + er, ey]], 0.035 * S); line([[R - er, ey], [R + er, ey]], 0.035 * S);
-      curve(0.42 * S, 0.68 * S, 0.5 * S, 0.72 * S, 0.58 * S, 0.68 * S, 0.03 * S);
-      break;
-    case 'smile':
-      eye(L, ey); eye(R, ey);
-      curve(0.36 * S, 0.64 * S, 0.5 * S, 0.76 * S, 0.64 * S, 0.64 * S);
-      break;
-    case 'creepy': // too-wide, thin, fixed smile with small pupils
-      eye(L, ey - 2, er * 0.55); eye(R, ey - 2, er * 0.55);
-      curve(0.14 * S, 0.56 * S, 0.5 * S, 0.9 * S, 0.86 * S, 0.56 * S, 0.026 * S);
-      line([[0.12 * S, 0.53 * S], [0.16 * S, 0.59 * S]], 0.022 * S); line([[0.88 * S, 0.53 * S], [0.84 * S, 0.59 * S]], 0.022 * S);
-      break;
-    case 'worried':
-      eye(L, ey + 4, er); eye(R, ey + 4, er);
-      line([[L - er * 1.4, ey - er * 1.9], [L + er * 1.2, ey - er * 2.6]], 0.03 * S);
-      line([[R + er * 1.4, ey - er * 1.9], [R - er * 1.2, ey - er * 2.6]], 0.03 * S);
-      curve(0.4 * S, 0.7 * S, 0.5 * S, 0.64 * S, 0.6 * S, 0.7 * S);
-      break;
-    case 'scared':
-      eye(L, ey, er * 1.1); eye(R, ey, er * 1.1);
-      line([[L - er * 1.4, ey - er * 2.0], [L + er * 1.2, ey - er * 2.7]], 0.03 * S);
-      line([[R + er * 1.4, ey - er * 2.0], [R - er * 1.2, ey - er * 2.7]], 0.03 * S);
-      g.beginPath(); g.ellipse(0.5 * S, 0.7 * S, 0.06 * S, 0.08 * S, 0, 0, Math.PI * 2); g.fill();
-      break;
-    case 'serious':
-      eye(L, ey + 3); eye(R, ey + 3);
-      line([[L - er * 1.5, ey - er * 2.4], [L + er * 1.3, ey - er * 1.7]], 0.04 * S);
-      line([[R + er * 1.5, ey - er * 2.4], [R - er * 1.3, ey - er * 1.7]], 0.04 * S);
-      line([[0.4 * S, 0.69 * S], [0.6 * S, 0.69 * S]]);
-      break;
-    case 'smirk':
-      eye(L, ey); eye(R, ey);
-      curve(0.4 * S, 0.68 * S, 0.53 * S, 0.72 * S, 0.63 * S, 0.63 * S);
-      break;
-    case 'glow': // the Night Mailman: two pale dots, no mouth
-      g.fillStyle = '#cfe0ff'; eye(L + 4, ey, er * 0.55); eye(R - 4, ey, er * 0.55);
-      break;
+    case 'sleep': closedEye(L, EY); closedEye(R, EY); quad(0.45 * S, 0.68 * S, 0.5 * S, 0.71 * S, 0.55 * S, 0.68 * S, 0.022); blush(0.35); break;
+    case 'smile': eye(L, EY); eye(R, EY); quad(0.38 * S, 0.64 * S, 0.5 * S, 0.74 * S, 0.62 * S, 0.64 * S, 0.03); blush(0.4); break;
+    case 'laugh': happyEye(L, EY); happyEye(R, EY); openMouth(0.5 * S, 0.62 * S, 0.11 * S, 0.07 * S); blush(0.6); break;
+    case 'smirk': eye(L, EY); eye(R, EY); brows(-0.3); quad(0.42 * S, 0.68 * S, 0.54 * S, 0.71 * S, 0.63 * S, 0.62 * S, 0.03); break;
+    case 'unimpressed': path([[L - 0.06 * S, EY - 0.02 * S], [L + 0.06 * S, EY - 0.02 * S]], 0.02); path([[R - 0.06 * S, EY - 0.02 * S], [R + 0.06 * S, EY - 0.02 * S]], 0.02);
+      ell(L, EY + 0.012 * S, 0.05 * S, 0.035 * S, ink); ell(R, EY + 0.012 * S, 0.05 * S, 0.035 * S, ink); path([[0.42 * S, 0.68 * S], [0.58 * S, 0.68 * S]], 0.026); break;
+    case 'worried': eye(L, EY + 4); eye(R, EY + 4); brows(-1); quad(0.4 * S, 0.7 * S, 0.5 * S, 0.64 * S, 0.6 * S, 0.7 * S, 0.026); sweat(); break;
+    case 'scared': eye(L, EY, 1.05, 0.55, true); eye(R, EY, 1.05, 0.55, true); brows(-1.2, EY - 0.17 * S); ell(0.5 * S, 0.71 * S, 0.055 * S, 0.07 * S, '#5a1020'); sweat(); break;
+    case 'crying': eye(L, EY, 1.1); eye(R, EY, 1.1); brows(-1); tears(); quad(0.4 * S, 0.74 * S, 0.5 * S, 0.66 * S, 0.6 * S, 0.74 * S, 0.026); break;
+    case 'serious': eye(L, EY + 3, 0.9); eye(R, EY + 3, 0.9); brows(1.2, EY - 0.1 * S, 0.034); path([[0.41 * S, 0.69 * S], [0.59 * S, 0.69 * S]], 0.028); break;
+    case 'shout': eye(L, EY, 0.9); eye(R, EY, 0.9); brows(1.2, EY - 0.1 * S, 0.034); openMouth(0.5 * S, 0.63 * S, 0.09 * S, 0.08 * S, false); break;
+    case 'creepy': eye(L, EY - 2, 1.15, 0.4, true); eye(R, EY - 2, 1.15, 0.4, true);
+      quad(0.14 * S, 0.57 * S, 0.5 * S, 0.9 * S, 0.86 * S, 0.57 * S, 0.024);
+      path([[0.12 * S, 0.54 * S], [0.16 * S, 0.6 * S]], 0.02); path([[0.88 * S, 0.54 * S], [0.84 * S, 0.6 * S]], 0.02); break;
+    case 'glow': ell(L + 4, EY, 0.03 * S, 0.03 * S, '#d6e6ff'); ell(R - 4, EY, 0.03 * S, 0.03 * S, '#d6e6ff'); break;
+    case 'dog': eye(0.3 * S, 0.4 * S, 1.15); eye(0.7 * S, 0.4 * S, 1.15); break;
+    case 'dogScared': eye(0.3 * S, 0.4 * S, 1.2, 0.5, true); eye(0.7 * S, 0.4 * S, 1.2, 0.5, true); brows(-1.2, 0.24 * S); break;
+    case 'dogAngry': eye(0.3 * S, 0.42 * S, 1.0); eye(0.7 * S, 0.42 * S, 1.0); path([[0.18 * S, 0.24 * S], [0.4 * S, 0.33 * S]], 0.04); path([[0.82 * S, 0.24 * S], [0.6 * S, 0.33 * S]], 0.04); break;
     case 'none': break;
-    default: // neutral
-      eye(L, ey); eye(R, ey);
-      line([[0.41 * S, 0.68 * S], [0.59 * S, 0.68 * S]]);
+    default: eye(L, EY); eye(R, EY); quad(0.43 * S, 0.68 * S, 0.5 * S, 0.7 * S, 0.57 * S, 0.68 * S, 0.026); blush(0.25);
   }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 4;
   return t;
 }
+export { drawFace };
+
+// Shirt decals: 'hoodie' | 'star' | 'cardigan' | 'pj' | 'heart'
+function shirtPrint(kind, base) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 160; const g = c.getContext('2d');
+  const star = (x, y, r, col) => { g.fillStyle = col; g.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.fill(); };
+  if (kind === 'hoodie') {
+    g.fillStyle = 'rgba(0,0,0,0.13)'; g.beginPath(); g.moveTo(70, 160); g.lineTo(85, 105); g.lineTo(171, 105); g.lineTo(186, 160); g.fill();
+    g.strokeStyle = '#ffffff'; g.lineWidth = 7; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(108, 6); g.lineTo(104, 62); g.moveTo(148, 6); g.lineTo(152, 62); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(104, 66, 7, 0, 7); g.arc(152, 66, 7, 0, 7); g.fill();
+  } else if (kind === 'star') { star(128, 78, 46, '#ff3b4e'); }
+  else if (kind === 'heart') { g.fillStyle = '#ff4f8b'; g.beginPath(); g.moveTo(128, 120); g.bezierCurveTo(60, 70, 95, 25, 128, 55); g.bezierCurveTo(161, 25, 196, 70, 128, 120); g.fill(); }
+  else if (kind === 'cardigan') {
+    g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(122, 0, 12, 160);
+    g.fillStyle = '#f2e9d8'; for (const y of [30, 70, 110, 148]) { g.beginPath(); g.arc(142, y, 7, 0, 7); g.fill(); }
+    g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(90, 0); g.lineTo(128, 50); g.lineTo(166, 0); g.fill();
+  } else if (kind === 'pj') { for (let i = 0; i < 14; i++) star(20 + (i * 71) % 230, 18 + ((i * 47) % 130), 11, '#ffffff'); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
+// ---------- dog ----------
+export function makeDog({ fur = '#d8994e', dark = '#8f5428', muzzle = '#f4dcb6', scale = 0.85 } = {}) {
+  const root = new THREE.Group(); root.name = 'Dog';
+  const body = new THREE.Group(); body.scale.setScalar(scale); root.add(body);
+  const M = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.55 });
+  const mF = M(fur), mD = M(dark), mM = M(muzzle), mBlack = M('#1a1420');
+  const add = (geo, m, x, y, z, parent) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; };
+  const torso = new THREE.Group(); torso.position.y = 0.55; body.add(torso);
+  add(rbox(0.5, 0.42, 0.85, 0.08), mF, 0, 0, 0, torso);
+  add(rbox(0.42, 0.2, 0.6, 0.06), mM, 0, -0.14, 0.05, torso);
+  const collar = add(rbox(0.46, 0.08, 0.1, 0.03), M('#e8233c'), 0, 0.14, 0.42, torso);
+  add(new THREE.CylinderGeometry(0.04, 0.04, 0.02, 12), M('#ffd23a'), 0, 0.06, 0.48, torso).rotation.x = Math.PI / 2;
+  const neck = new THREE.Group(); neck.position.set(0, 0.18, 0.4); torso.add(neck);
+  const head = new THREE.Group(); head.position.set(0, 0.2, 0.08); neck.add(head);
+  add(rbox(0.52, 0.46, 0.46, 0.09), mF, 0, 0, 0, head);
+  add(rbox(0.3, 0.2, 0.22, 0.06), mM, 0, -0.1, 0.28, head);
+  add(rbox(0.12, 0.08, 0.06, 0.03), mBlack, 0, -0.03, 0.4, head);
+  const tongue = add(rbox(0.1, 0.03, 0.16, 0.012), M('#ff6b8a'), 0, -0.21, 0.32, head);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.4), new THREE.MeshStandardMaterial({ map: drawFace('dog'), transparent: true, depthWrite: false }));
+  face.position.set(0, 0.04, 0.233); face.renderOrder = 2; head.add(face);
+  const ears = [];
+  for (const sx of [1, -1]) { const e = new THREE.Group(); e.position.set(sx * 0.27, 0.16, -0.02); head.add(e); add(rbox(0.08, 0.36, 0.22, 0.03), mD, 0, -0.16, 0, e); ears.push(e); }
+  const legs = [];
+  for (const [x, z] of [[0.17, 0.3], [-0.17, 0.3], [0.17, -0.3], [-0.17, -0.3]]) {
+    const l = new THREE.Group(); l.position.set(x, -0.12, z); torso.add(l);
+    add(rbox(0.15, 0.36, 0.15, 0.04), mF, 0, -0.17, 0, l); add(rbox(0.16, 0.08, 0.2, 0.03), mM, 0, -0.36, 0.02, l); legs.push(l);
+  }
+  const tail = new THREE.Group(); tail.position.set(0, 0.12, -0.42); torso.add(tail);
+  add(rbox(0.09, 0.09, 0.34, 0.035), mF, 0, 0, -0.15, tail);
+  const faces = {};
+  return {
+    name: 'Dog', group: root, body, head, tongue,
+    setFace(e) { faces[e] = faces[e] || drawFace(e); face.material.map = faces[e]; face.material.needsUpdate = true; },
+    setPose({ t = 0, wag = 1, walk = 0, headTilt = 0, headPitch = 0, tongueOut = true, crouch = 0, earsBack = 0, sit = 0 } = {}) {
+      tail.rotation.set(0.7 - crouch * 1.2, Math.sin(t * 18) * 0.6 * wag, 0);
+      head.rotation.set(headPitch, 0, headTilt);
+      neck.rotation.x = crouch * 0.35;
+      tongue.visible = tongueOut;
+      ears.forEach((e, i) => e.rotation.set(-earsBack * 0.9, 0, (i ? -1 : 1) * (0.1 + earsBack * 0.3)));
+      torso.position.y = 0.55 - crouch * 0.12 - sit * 0.12; torso.rotation.x = -sit * 0.45 + crouch * 0.12;
+      legs.forEach((l, i) => { const ph = walk ? Math.sin(t * 12 + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI : 0)) * 0.6 : 0; l.rotation.x = ph + (i > 1 ? sit * 1.2 : 0) - crouch * 0.15; });
+    },
+  };
+}
+
 
 // ---------- body ----------
 const JOINTS = ['hips', 'waist', 'neck', 'shoulderL', 'elbowL', 'wristL', 'shoulderR', 'elbowR', 'wristR',
@@ -121,6 +187,10 @@ export function makeCharacter(o = {}) {
   part('lowerTorso', hips, rbox(tw * 0.96, ltH, 0.4), mPants, 0, ltH / 2);
   const waist = pivot('waist', hips, 0, ltH);
   part('upperTorso', waist, rbox(tw, utH, 0.42), mShirt, 0, utH / 2);
+  if (opt.print && !opt.silhouette) {
+    const pm = new THREE.MeshStandardMaterial({ map: shirtPrint(opt.print, opt.shirt), transparent: true, roughness: 0.6, depthWrite: false });
+    const pp = new THREE.Mesh(new THREE.PlaneGeometry(tw * 0.92, utH * 0.92), pm); pp.position.set(0, utH / 2, 0.212); pp.renderOrder = 2; waist.add(pp);
+  }
   const neck = pivot('neck', waist, 0, utH);
   const headH = 0.5, headW = 0.56, headD = 0.5;
   const head = part('head', neck, rbox(headW, headH, headD, 0.07), mSkin, 0, headH / 2 + 0.02);

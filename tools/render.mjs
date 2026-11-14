@@ -45,6 +45,21 @@ if (mode === 'video') {
   }
   ff.stdin.end(); await new Promise(r => ff.on('close', r));
   console.log('wrote', outFile);
+} else if (mode === 'both') {
+  // captioned -> build/video.mp4, clean -> build/video_clean.mp4 from a single render pass
+  const n = await page.evaluate(() => window.__frameCount);
+  const mk = file => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', '30', '-i', '-',
+    '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', '30', file], { stdio: ['pipe', 'inherit', 'inherit'] });
+  const ffA = mk(path.join(ROOT, 'build/video.mp4')), ffB = mk(path.join(ROOT, 'build/video_clean.mp4'));
+  const t0 = Date.now();
+  for (let f = 0; f < n; f++) {
+    const [clean, cap] = await page.evaluate(f => window.renderFrameBoth(f), f);
+    if (!ffA.stdin.write(b64(cap))) await new Promise(r => ffA.stdin.once('drain', r));
+    if (!ffB.stdin.write(b64(clean))) await new Promise(r => ffB.stdin.once('drain', r));
+    if (f % 60 === 0) console.log(`frame ${f}/${n}  ${((Date.now() - t0) / 1000 / (f + 1)).toFixed(2)}s/frame`);
+  }
+  ffA.stdin.end(); ffB.stdin.end(); await Promise.all([ffA, ffB].map(p => new Promise(r => p.on('close', r))));
+  console.log('wrote build/video.mp4 and build/video_clean.mp4');
 } else {
   const shots = await page.evaluate(() => fetch('/build/timing.json').then(r => r.json()).then(t => t.shots.length));
   const only = (process.argv[3] || '').split(',').filter(Boolean).map(Number);

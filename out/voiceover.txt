@@ -1,33 +1,48 @@
 THE NIGHT MAILMAN - voiceover script
-Total length 60.20s. Times are when each line starts. [W] = whisper.
+Total length 82.73s. Times are when each line starts. [W] = whisper.
 
- 1    0.00s  (shot 2.47s)  In this town, there's one strange rule.
- 2    2.47s  (shot 2.50s)  Every house keeps one light on at midnight.
- 3    4.97s  (shot 1.50s)  No exceptions.
- 4    6.47s  (shot 1.97s)  My family moved here last week.
- 5    8.43s  (shot 1.87s)  Our neighbor warned us right away.
- 6   10.30s  (shot 1.87s) [W]  If your window goes dark at twelve...
- 7   12.17s  (shot 1.60s) [W]  ...the Night Mailman visits.
- 8   13.77s  (shot 1.50s)  I thought it was a joke.
- 9   15.27s  (shot 2.37s)  My little brother Theo thought so too.
-10   17.63s  (shot 2.00s)  He hated sleeping with the light on.
-11   19.63s  (shot 1.87s)  11:59 PM.
-12   21.50s  (shot 1.50s)  He switched it off.
-13   23.00s  (shot 2.60s) [W]  Then... silence.
-14   25.60s  (shot 2.60s) [W]  Twelve o'clock. Something slid under the door.
-15   28.20s  (shot 1.70s)  (no words)
-16   29.90s  (shot 1.50s)  Theo opened it.
-17   31.40s  (shot 1.93s) [W]  It said: Your light is off.
-18   33.33s  (shot 1.63s) [W]  Come out and see ours.
-19   34.97s  (shot 1.50s)  I ran to his room.
-20   36.47s  (shot 1.50s)  The window was open.
-21   37.97s  (shot 3.17s)  I screamed. Mr. Pell was already at our door.
-22   41.13s  (shot 1.50s) [W]  Don't go out there.
-23   42.63s  (shot 1.50s)  Light the lamp. Hurry.
-24   44.13s  (shot 1.57s)  The room glowed gold.
-25   45.70s  (shot 2.00s) [W]  Outside, the footsteps stopped.
-26   47.70s  (shot 1.67s)  By morning, he was home.
-27   49.37s  (shot 2.33s) [W]  But he just smiles now.
-28   51.70s  (shot 3.60s) [W]  Every night at 11:59, he asks to turn off the lamp.
-29   55.30s  (shot 1.50s)  I never let him.
-30   56.80s  (shot 3.40s) [W]  Keep your light on.
+ 1    0.00s  (shot 2.13s)  My town has 412 houses.
+ 2    2.13s  (shot 2.60s)  And at midnight, every single one has a light on.
+ 3    4.73s  (shot 1.73s)  Not because we're scared of the dark.
+ 4    6.47s  (shot 1.53s) [W]  Because of what delivers the mail.
+ 5    8.00s  (shot 1.50s)  We moved in on a Tuesday.
+ 6    9.50s  (shot 1.60s)  Me, my little brother Theo...
+ 7   11.10s  (shot 2.07s)  ...and Biscuit, the world's worst guard dog.
+ 8   13.17s  (shot 2.47s)  Our neighbor, Mr. Pell, didn't say hello.
+ 9   15.63s  (shot 1.83s)  He just pointed at our windows...
+10   17.47s  (shot 2.27s) [W]  ...and said, 'Keep one on. Always.'
+11   19.73s  (shot 2.13s)  Theo laughed. Theo laughs at everything.
+12   21.87s  (shot 3.23s)  That night, I found the town rules taped inside our mailbox.
+13   25.10s  (shot 2.13s)  Rule one: keep a light on at midnight.
+14   27.23s  (shot 2.37s)  Rule two: never open a letter with no stamp.
+15   29.60s  (shot 1.23s) [W]  Rule three... was torn off.
+16   30.83s  (shot 1.47s)  11:58 PM.
+17   32.30s  (shot 1.83s)  Theo hates sleeping with the light on.
+18   34.13s  (shot 1.60s)  So he did the dumbest thing ever.
+19   35.73s  (shot 1.60s)  Click.
+20   37.33s  (shot 1.43s)  Biscuit started growling.
+21   38.77s  (shot 1.20s) [W]  Biscuit never growls.
+22   39.97s  (shot 1.10s) [W]  Twelve o'clock.
+23   41.07s  (shot 1.53s) [W]  Something slid under the door.
+24   42.60s  (shot 1.27s)  A letter. No stamp.
+25   43.87s  (shot 1.47s)  Theo opened it anyway.
+26   45.33s  (shot 1.53s) [W]  It said: Your light is off.
+27   46.87s  (shot 1.33s) [W]  Come out and see ours.
+28   48.20s  (shot 1.47s)  Then I heard the window creak.
+29   49.67s  (shot 1.23s)  I ran to his room.
+30   50.90s  (shot 1.17s)  His bed was empty.
+31   52.07s  (shot 2.97s)  And outside, a tall man with a mail sack was walking away...
+32   55.03s  (shot 1.40s) [W]  ...holding Theo's hand.
+33   56.43s  (shot 2.80s)  I screamed. Mr. Pell was already at our door.
+34   59.23s  (shot 2.07s) [W]  Don't chase him. Turn your light back on.
+35   61.30s  (shot 1.10s)  I slammed the switch.
+36   62.40s  (shot 1.83s)  Every light in Hollow Creek flickered.
+37   64.23s  (shot 1.23s) [W]  And the footsteps... stopped.
+38   65.47s  (shot 1.93s)  In the morning, Theo was back in bed.
+39   67.40s  (shot 1.47s)  He doesn't remember anything.
+40   68.87s  (shot 1.93s)  But Biscuit won't go near him anymore.
+41   70.80s  (shot 2.00s)  And every night, at 11:59...
+42   72.80s  (shot 2.10s) [W]  ...he asks me to turn off the lamp.
+43   74.90s  (shot 2.30s)  Last night, I found the rest of rule three.
+44   77.20s  (shot 1.93s) [W]  If they come back... they're not yours.
+45   79.13s  (shot 3.60s) [W]  Keep your light on.

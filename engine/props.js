@@ -6,7 +6,7 @@ export const GOLD = new THREE.Color('#ffb83d');      // lamp light — the ONLY 
 export const GOLD_GLASS = new THREE.Color('#ffc75a');
 export const GLASS_LIT = new THREE.MeshBasicMaterial({ color: GOLD_GLASS });
 export const CURTAIN_LIT = new THREE.MeshBasicMaterial({ color: '#b8641e' });
-export const GLASS_DARK = new THREE.MeshStandardMaterial({ color: '#0d1a44', roughness: 0.15, metalness: 0.4 });
+export const GLASS_DARK = new THREE.MeshStandardMaterial({ color: '#2b4f8f', roughness: 0.1, metalness: 0.5, emissive: '#16305e', emissiveIntensity: 0.25 });
 
 const matCache = new Map();
 export function std(color, o = {}) {
@@ -112,8 +112,8 @@ export function makeEnvelope(name = 'THEO') {
     x.strokeStyle = '#c9cfdf'; x.lineWidth = 6; x.strokeRect(10, 10, w - 20, h - 20);
     x.fillStyle = '#16131c'; x.font = '120px "Special Elite"'; x.textAlign = 'center'; x.textBaseline = 'middle';
     x.save(); x.translate(w / 2, h / 2 + 10); x.rotate(-0.06); x.fillText(name, 0, 0); x.restore();
-    // stamp: a tiny dark window
-    x.fillStyle = '#1b2440'; x.fillRect(w - 92, 26, 64, 76); x.fillStyle = '#05070f'; x.fillRect(w - 78, 40, 36, 46);
+    // no stamp: just a dashed empty box where it should be
+    x.setLineDash([8, 8]); x.strokeStyle = '#9aa3bb'; x.lineWidth = 4; x.strokeRect(w - 92, 26, 64, 76); x.setLineDash([]);
   });
   const paper = std('#eef1f8', { roughness: 0.9 });
   mesh(box(0.42, 0.012, 0.28), paper, 0, 0.006, 0, g);
@@ -236,8 +236,8 @@ export function makeCurtain(w = 0.65, h = 1.9, color = '#5b2bd1') {
 }
 
 // ---------------- houses ----------------
-const HOUSE_COLORS = ['#3d7bff', '#ff3d7f', '#22c48a', '#8f4dff', '#18b4e0', '#e8417a', '#4f5dff', '#2fbf71', '#d14dff', '#3aa0ff'];
-const ROOF_COLORS = ['#1e2a5c', '#3b1f4f', '#123d4a', '#2b2b55', '#4a1d3a'];
+const HOUSE_COLORS = ['#f4e1bd', '#cfe2f7', '#f6d2dc', '#d5f0d6', '#efe6cf', '#e4d6f5', '#f9e7b3', '#d8ecf2'];
+const ROOF_COLORS = ['#2e9b6c', '#3a74c9', '#7b4a39', '#2f8f8f', '#c4505a', '#4b5fbf'];
 
 /** A two-storey blocky house. Front faces +z. Returns {group, windows:[{setLit}]} */
 export function makeHouse({ w = 7, d = 7, color, roof, lit = [true, false, false, true], seed = 0, simple = false, specialWindow = -1 } = {}) {
@@ -262,7 +262,7 @@ export function makeHouse({ w = 7, d = 7, color, roof, lit = [true, false, false
   if (!simple) mesh(box(0.7, 1.6, 0.7), std('#3b3f63'), w * 0.25, H + 2.1, -d * 0.15, g); // chimney
   // door
   mesh(box(1.3, 2.3, 0.1), std('#f2f4fa'), 0, 1.15, d / 2 + 0.03, g);
-  mesh(box(1.05, 2.1, 0.1), std(['#ff3355', '#1d4cff', '#00b386', '#8a2be2'][seed % 4], { roughness: 0.4 }), 0, 1.05, d / 2 + 0.07, g);
+  mesh(box(1.05, 2.1, 0.1), std(['#1f6f8b', '#7a3b2e', '#2e7d4f', '#3b4a9c'][seed % 4], { roughness: 0.4 }), 0, 1.05, d / 2 + 0.07, g);
   if (!simple) {
     mesh(box(2.6, 0.25, 1.4), std('#cfd6e6'), 0, 0.12, d / 2 + 0.7, g);  // porch step
     mesh(box(2.8, 0.15, 1.6), std('#1f2a52'), 0, 2.75, d / 2 + 0.75, g); // porch roof
@@ -304,12 +304,38 @@ export function makeHouse({ w = 7, d = 7, color, roof, lit = [true, false, false
 
 export function makeTree(seed = 0, scale = 1) {
   const g = new THREE.Group();
-  mesh(box(0.5, 2.2, 0.5), std('#4a3326'), 0, 1.1, 0, g);
-  const greens = ['#1fbf5a', '#18a84f', '#29d36a'];
-  mesh(rb(2.4, 1.4, 2.4, 0.15), std(greens[seed % 3], { roughness: 0.8 }), 0, 2.7, 0, g);
-  mesh(rb(1.7, 1.1, 1.7, 0.15), std(greens[(seed + 1) % 3], { roughness: 0.8 }), 0, 3.85, 0, g);
-  mesh(rb(1.0, 0.8, 1.0, 0.12), std(greens[(seed + 2) % 3], { roughness: 0.8 }), 0, 4.7, 0, g);
+  mesh(box(0.45, 2.4, 0.45), std('#6b4a35'), 0, 1.2, 0, g);
+  const pinks = ['#f7a8c9', '#ffbfd8', '#f48fb8', '#ffd1e3'];
+  const blobs = [[0, 3.1, 0, 1.6], [0.9, 2.8, 0.3, 1.1], [-0.85, 2.9, -0.2, 1.15], [0.2, 3.9, -0.3, 1.1], [-0.3, 3.0, 0.9, 1.0], [0.4, 3.2, -0.9, 1.0]];
+  blobs.forEach(([x, y, z, r], i) => mesh(new THREE.IcosahedronGeometry(r, 1), std(pinks[(i + seed) % 4], { roughness: 0.85, flatShading: true }), x, y, z, g));
   g.scale.setScalar(scale);
+  return g;
+}
+
+export function makePicketFence(len = 6) {
+  const g = new THREE.Group(); const m = std('#ffffff', { roughness: 0.5 });
+  for (let x = -len / 2; x <= len / 2 + 1e-6; x += 0.4) { mesh(box(0.14, 0.9, 0.06), m, x, 0.45, 0, g); mesh(new THREE.ConeGeometry(0.1, 0.14, 4), m, x, 0.97, 0, g).rotation.y = Math.PI / 4; }
+  mesh(box(len + 0.2, 0.08, 0.05), m, 0, 0.7, -0.04, g); mesh(box(len + 0.2, 0.08, 0.05), m, 0, 0.3, -0.04, g);
+  return g;
+}
+
+export function makeCloud(seed = 0) {
+  const g = new THREE.Group(); const m = new THREE.MeshBasicMaterial({ color: '#ffffff', fog: false });
+  const parts = [[0, 0, 0, 7], [6, -1, 1, 5], [-6, -1.2, 0, 5.5], [2.5, 2.5, -1, 4.5]];
+  parts.forEach(([x, y, z, r], i) => { const o = new THREE.Mesh(new THREE.IcosahedronGeometry(r * (1 + 0.1 * ((seed + i) % 3)), 1), m); o.position.set(x, y, z); g.add(o); });
+  return g;
+}
+
+export function makeTower(w, h, d, color, seed = 0) {
+  const g = new THREE.Group();
+  const tex = canvasTex(128, 256, (x, W, H) => {
+    x.fillStyle = color; x.fillRect(0, 0, W, H);
+    x.fillStyle = 'rgba(80,130,190,0.55)';
+    for (let yy = 8; yy < H; yy += 16) for (let xx = 8; xx < W - 8; xx += 20) x.fillRect(xx, yy, 12, 9);
+  });
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(Math.max(1, Math.round(w / 6)), Math.max(1, Math.round(h / 24)));
+  mesh(box(w, h, d), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.0 }), 0, h / 2, 0, g, { cast: false });
+  mesh(box(w + 0.6, 1, d + 0.6), std('#e9eef6'), 0, h + 0.5, 0, g, { cast: false });
   return g;
 }
 
@@ -319,4 +345,56 @@ export function makeMailbox() {
   mesh(rb(0.36, 0.34, 0.6, 0.12), std('#e8233c', { roughness: 0.4 }), 0, 1.15, 0, g);
   mesh(box(0.05, 0.25, 0.05), std('#1d4cff'), 0.2, 1.3, 0.1, g);
   return g;
+}
+
+// ---------- town rules sheet (bottom torn off) and the torn scrap ----------
+function tornEdge(x, w, y0, amp, seed) { x.beginPath(); x.moveTo(0, 0); x.lineTo(w, 0); x.lineTo(w, y0); for (let i = 20; i >= 0; i--) x.lineTo(w * i / 20, y0 + ((i * 7919 + seed) % 13 - 6) * amp); x.closePath(); }
+export function makeRulesPaper() {
+  const g = new THREE.Group(); g.name = 'rules';
+  const tex = canvasTex(640, 900, (x, w, h) => {
+    x.clearRect(0, 0, w, h); tornEdge(x, w, 770, 4, 3); x.fillStyle = '#fbf6ea'; x.fill();
+    x.save(); x.clip();
+    x.fillStyle = '#c4122e'; x.fillRect(0, 0, w, 120);
+    x.fillStyle = '#fff'; x.font = '900 52px Montserrat'; x.textAlign = 'center'; x.fillText('HOLLOW CREEK', w / 2, 62); x.font = '900 30px Montserrat'; x.fillText('TOWN RULES', w / 2, 103);
+    x.textAlign = 'left'; x.fillStyle = '#1a1420'; x.font = '900 40px Montserrat';
+    const rule = (n, l1, l2, y) => { x.fillStyle = '#c4122e'; x.fillText(n, 40, y); x.fillStyle = '#1a1420'; x.fillText(l1, 100, y); if (l2) x.fillText(l2, 100, y + 50); };
+    rule('1.', 'Keep one light on', 'at midnight.', 220);
+    rule('2.', 'Never open a letter', 'with no stamp.', 420);
+    rule('3.', 'If they come', '', 620);
+    x.restore();
+  });
+  const p = mesh(new THREE.PlaneGeometry(0.42, 0.59), new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.5, roughness: 0.95, side: THREE.DoubleSide }), 0, 0, 0, g);
+  return { group: g };
+}
+export function makeScrap() {
+  const g = new THREE.Group(); g.name = 'scrap';
+  const tex = canvasTex(640, 260, (x, w, h) => {
+    x.clearRect(0, 0, w, h); x.beginPath(); x.moveTo(0, 40); for (let i = 0; i <= 20; i++) x.lineTo(w * i / 20, 40 + ((i * 7919 + 3) % 13 - 6) * 4); x.lineTo(w, h); x.lineTo(0, h); x.closePath();
+    x.fillStyle = '#fbf6ea'; x.fill();
+    x.font = '900 40px Montserrat'; x.fillStyle = '#1a1420'; x.fillText('back...', 100, 105);
+    x.fillStyle = '#c4122e'; x.font = '900 46px Montserrat'; x.fillText("they're not yours.", 60, 185);
+  });
+  mesh(new THREE.PlaneGeometry(0.42, 0.17), new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.5, roughness: 0.95, side: THREE.DoubleSide }), 0, 0, 0, g);
+  return { group: g };
+}
+export function makeTruck() {
+  const g = new THREE.Group();
+  const tex = canvasTex(512, 256, (x, w, h) => { x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h); x.fillStyle = '#2f6fe0'; x.font = '900 70px Montserrat'; x.textAlign = 'center'; x.fillText('EASY', w / 2, 110); x.fillText('MOVE', w / 2, 185); x.fillStyle = '#ff4fa3'; x.fillRect(40, 210, w - 80, 14); });
+  const side = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 });
+  mesh(box(2.4, 2.6, 5), std('#ffffff'), 0, 1.75, -0.8, g);
+  for (const sx of [1, -1]) { const p = mesh(new THREE.PlaneGeometry(4.6, 2.3), side, sx * 1.205, 1.8, -0.8, g, { cast: false }); p.rotation.y = sx * Math.PI / 2; }
+  mesh(rb(2.4, 1.9, 1.8, 0.2), std('#2f6fe0'), 0, 1.4, 2.6, g);
+  mesh(box(2.2, 0.8, 0.05), std('#bfe3ff', { metalness: 0.4, roughness: 0.1 }), 0, 1.85, 3.5, g);
+  for (const [x, z] of [[1.15, 2.6], [-1.15, 2.6], [1.15, -2.2], [-1.15, -2.2]]) { const w = mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 16), std('#22252e'), x, 0.45, z, g); w.rotation.z = Math.PI / 2; }
+  return g;
+}
+export function makeFlagMailbox() {
+  const g = new THREE.Group();
+  mesh(box(0.14, 1.0, 0.14), std('#6b4a35'), 0, 0.5, 0, g);
+  mesh(rb(0.42, 0.38, 0.7, 0.14), std('#2f6fe0', { roughness: 0.35 }), 0, 1.17, 0, g);
+  const door = new THREE.Group(); door.position.set(0, 0.98, 0.36); g.add(door);
+  mesh(box(0.4, 0.36, 0.03), std('#2a62d0'), 0, 0.18, 0, door);
+  const flag = new THREE.Group(); flag.position.set(-0.23, 1.1, -0.1); g.add(flag);
+  mesh(box(0.03, 0.4, 0.05), std('#e8233c'), 0, 0.18, 0, flag); mesh(box(0.03, 0.14, 0.18), std('#e8233c'), 0, 0.32, 0.08, flag);
+  return { group: g, setFlag(a) { flag.rotation.x = -a; }, setDoor(a) { door.rotation.x = a; } };
 }

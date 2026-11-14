@@ -11,6 +11,8 @@ Reads build/script.json (from tools/export_script.mjs). Writes:
 """
 import json, os, re, subprocess, sys, tempfile
 import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import music as MU
 from scipy import signal
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,15 +20,15 @@ B = lambda *p: os.path.join(ROOT, 'build', *p)
 O = lambda *p: os.path.join(ROOT, 'out', *p)
 os.makedirs(B(), exist_ok=True); os.makedirs(O(), exist_ok=True)
 SR = 48000
-TARGET = float(os.environ.get('TARGET_SECONDS', 60.0))
-LEAD, TAIL, MIN_SHOT = 0.08, 0.30, 1.5
+TARGET = float(os.environ.get('TARGET_SECONDS', 78.0))
+LEAD, TAIL, MIN_SHOT = 0.06, 0.24, 1.1
 rng = np.random.default_rng(7)
 
 script = json.load(open(B('script.json')))
 BED_ONLY = '--bed-only' in sys.argv  # music + SFX only, reusing build/timing.json -> out/no_voice.wav
 
 # ---------------- voice ----------------
-MODEL = os.path.join(ROOT, 'tools/piper/en-us-ryan-high.onnx')
+MODEL = os.path.join(ROOT, 'tools/piper', os.environ.get('VOICE', 'en-us-lessac-medium') + '.onnx')
 voice = None
 if os.path.exists(MODEL):
     from piper import PiperVoice, SynthesisConfig
@@ -92,7 +94,7 @@ def durations(lines, est_wps=3.3):
 # choose a speaking rate so the film lands on ~60 s
 if BED_ONLY: voice = None
 if voice is not None:
-    lo, hi = 0.62, 1.0; best = None
+    lo, hi = 0.7, 1.05; best = None
     for _ in range(7):
         mid = (lo + hi) / 2
         lines = synth_all(mid); tot = sum(durations(lines))
@@ -301,21 +303,17 @@ for i, s in enumerate(script):
         elif ty == 'chime': add(mix_sfx, t, chime())
         elif ty == 'whoosh': add(mix_sfx, t, whoosh(fx.get('low')))
         elif ty == 'wind': add(mix_sfx, t, wind(fx.get('dur', 2)))
+        elif ty == 'growl': add(mix_sfx, t, MU.growl(fx.get('dur', 1.5), fx.get('soft')), 0.9)
+        elif ty == 'creak': add(mix_sfx, t, MU.creak(short=fx.get('short')))
+        elif ty == 'buzz': add(mix_sfx, t, MU.buzz(fx.get('dur', 1.6)))
+        elif ty == 'boom': add(mix_sfx, t, MU.boom(), 0.8)
+        elif ty == 'pop': add(mix_sfx, t, MU.pop())
         elif ty == 'silence': mutes.append((t, t + fx.get('dur', 0.5)))
 
-# drone: detuned low sines + filtered noise + slow swell; brighter, softer in morning shots
-drone = (np.sin(2 * np.pi * 55 * T) + 0.8 * np.sin(2 * np.pi * 55.4 * T + 1) + 0.45 * np.sin(2 * np.pi * 82.4 * T)
-         + 0.25 * np.sin(2 * np.pi * 110.3 * T))
-drone *= 0.75 + 0.25 * np.sin(2 * np.pi * 0.11 * T)
-drone += lp(rng.standard_normal(N), 180, 2) * 1.8
-drone = drone / np.abs(drone).max() * 0.16
-dg = np.ones(N)
-for i, s in enumerate(script):
-    if s['vo'].startswith('By morning') or s['vo'].startswith('But he just'):
-        k0, k1 = int(starts[i] * SR), int((starts[i] + durs[i]) * SR); dg[k0:k1] = 0.45
-dg = np.convolve(dg, np.ones(int(0.15 * SR)) / int(0.15 * SR), mode='same')
-fade = np.clip(T / 1.0, 0, 1) * np.clip((total - T) / 0.6, 0, 1)
-bed_mix = drone * dg * fade + mix_sfx * 0.85
+# original score: per-shot moods crossfaded (see tools/music.py)
+music = MU.score(N, starts, durs, [x.get('music', 'none') for x in script])
+fade = np.clip(T / 0.3, 0, 1) * np.clip((total - T) / 0.8, 0, 1)
+bed_mix = music * 0.5 * fade + mix_sfx * 0.85
 
 # hard silence windows (everything off, including voice)
 for t0, t1 in mutes:
@@ -327,7 +325,7 @@ for t0, t1 in mutes:
 
 # light ducking of the bed under the voice
 venv = np.convolve(np.abs(vo_track), np.ones(int(0.1 * SR)) / int(0.1 * SR), mode='same')
-duck = 1 - 0.35 * np.clip(venv / 0.08, 0, 1)
+duck = 1 - 0.45 * np.clip(venv / 0.06, 0, 1)
 mix = vo_track * 1.0 + bed_mix * duck
 mix = mix[:int(total * SR)]
 mix = np.tanh(mix * 1.1) / np.tanh(1.1)
