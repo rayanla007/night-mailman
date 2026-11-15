@@ -32,7 +32,7 @@ export function evalCamera(spec, t, u, w) {
     look: lerp3(from.look, to.look ?? from.look, e),
     fov: lerp(fovA, fovB, e),
     roll: lerp(from.roll || 0, to.roll ?? from.roll ?? 0, e),
-    sway: spec.sway ?? 0.5,
+    sway: spec.sway ?? 0.5, noDof: !!spec.noDof,
   };
 }
 

@@ -85,3 +85,32 @@ export function buildMirrorKit(scene, W) {
   mesh(box(30, 0.12, 3), std('#9aa3c4'), 0, 0.06, 2, g, { cast: false });
   mesh(box(30, 0.08, 7), std('#3a3f4a'), 0, 0.04, 7, g, { cast: false });
 }
+
+// ---------- Weather Remote: the remote, snow, tornado, rainbow ----------
+export function buildWeatherKit(scene, W) {
+  // remote (front face +z), ~0.5 x 0.9
+  const r = new THREE.Group();
+  mesh(rb(0.55, 0.95, 0.12, 0.05), std('#8f98ad', { metalness: 0.25, roughness: 0.55 }), 0, 0, 0, r);
+  const cols = ['#3fa9ff', '#c9d2e3', '#ffc928', '#40c463', '#9b5cff', '#ff7ac4', '#7fd3ff', '#ff9b4a'];
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { const b = mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.03, 12), std(cols[(i * 4 + j) % 8], { roughness: 0.4 }), -0.165 + j * 0.11, 0.3 - i * 0.11, 0.07, r); b.rotation.x = Math.PI / 2; }
+  const red = mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.04, 20), std('#e8233c', { roughness: 0.3 }), 0, -0.25, 0.075, r); red.rotation.x = Math.PI / 2;
+  const tape = new THREE.Group(); tape.position.set(0, -0.25, 0.1); r.add(tape);
+  for (const a of [0.6, -0.6]) { const t = mesh(box(0.24, 0.045, 0.01), std('#ffd23a'), 0, 0, 0, tape); t.rotation.z = a; }
+  W.props.remote = { group: r, red, tape };
+  // snow: a box of points around the camera's set position, falls deterministically with t
+  const N = 2500, pos = new Float32Array(N * 3), base = new Float32Array(N * 3);
+  let s = 3; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < N; i++) base.set([rnd() * 60 - 30, rnd() * 25, rnd() * 60 - 30], i * 3);
+  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const snow = new THREE.Points(sg, new THREE.PointsMaterial({ color: '#ffffff', size: 0.12, transparent: true, opacity: 0.95 })); snow.frustumCulled = false;
+  W.props.snow = { group: snow, update(t, center = [0, 0, 8], speed = 1.6) {
+    for (let i = 0; i < N; i++) { const y = ((base[i * 3 + 1] - t * speed) % 25 + 25) % 25; pos[i * 3] = center[0] + base[i * 3] + Math.sin(t + i) * 0.3; pos[i * 3 + 1] = y; pos[i * 3 + 2] = center[2] + base[i * 3 + 2]; }
+    sg.attributes.position.needsUpdate = true; } };
+  // tornado: stacked spinning translucent rings
+  const tor = new THREE.Group();
+  for (let i = 0; i < 14; i++) { const k = i / 13; const ring = mesh(new THREE.TorusGeometry(0.6 + k * k * 7, 0.35 + k * 0.9, 8, 28), new THREE.MeshStandardMaterial({ color: '#9aa3b8', transparent: true, opacity: 0.5, roughness: 1, depthWrite: false }), 0, i * 1.6, 0, tor, { cast: false }); ring.rotation.x = Math.PI / 2; ring.userData.k = k; }
+  W.props.tornado = { group: tor, update(t, scale = 1) { tor.children.forEach((c, i) => { c.rotation.z = t * (4 - c.userData.k * 2) + i; c.position.x = Math.sin(t * 2 + i * 0.5) * 0.6 * c.userData.k; }); tor.scale.setScalar(scale); } };
+  // rainbow
+  const rb_ = new THREE.Group(); ['#ff3b4e', '#ff9b4a', '#ffd23a', '#40c463', '#3fa9ff', '#9b5cff'].forEach((c, i) => mesh(new THREE.TorusGeometry(40 - i * 1.6, 0.8, 8, 64, Math.PI), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.8, fog: false }), 0, 0, 0, rb_, { cast: false }));
+  W.props.rainbow = { group: rb_ };
+}
