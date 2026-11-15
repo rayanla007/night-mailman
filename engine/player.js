@@ -13,6 +13,8 @@ import { buildV3, PRESETS_V3 } from './v3.js';
 import { buildV4 } from './v4.js';
 import { buildStation, buildExtras, buildMirrorKit, buildWeatherKit, buildElevatorKit } from './v5.js';
 Object.assign(PRESETS, PRESETS_V3);
+import { buildPetKit, PRESETS_V6 } from './v6.js';
+Object.assign(PRESETS, PRESETS_V6);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
 import { Poses } from './character.js';
@@ -65,6 +67,7 @@ export async function boot() {
   if (kit.includes('mirror')) buildMirrorKit(scene, W);
   if (kit.includes('weather')) buildWeatherKit(scene, W);
   if (kit.includes('elevator')) buildElevatorKit(scene, W);
+  if (kit.includes('pets')) buildPetKit(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(RW, RH, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
@@ -149,6 +152,7 @@ export async function boot() {
         const ck = W.props.cake.group; ck.removeFromParent();
       }
     }
+    if (W.resetPets) W.resetPets();
     setLighting(shot.light || 'night', setName);
     if (shot.fog) scene.fog = new THREE.Fog(...shot.fog);
     if (W.bigKey && shot.noKey) W.bigKey.visible = false;
