@@ -16,6 +16,7 @@ Object.assign(PRESETS, PRESETS_V3);
 import { buildPetKit, PRESETS_V6 } from './v6.js';
 import { buildShadowKit } from './v7.js';
 import { buildNameKit } from './v8.js';
+import { buildFlipKit } from './v9.js';
 Object.assign(PRESETS, PRESETS_V6);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
@@ -72,6 +73,7 @@ export async function boot() {
   if (kit.includes('pets')) buildPetKit(scene, W);
   if (kit.includes('shadow')) buildShadowKit(scene, W);
   if (kit.includes('names')) buildNameKit(scene, W);
+  if (kit.includes('flip')) buildFlipKit(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(RW, RH, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
