@@ -59,7 +59,7 @@ export function buildNameKit(scene, W) {
 
   // ---------- tower plaque + little door (square set, tower front face at z = -10.5) ----------
   const sq = W.sets.square;
-  const plaqueTex = canvasTex(512, 320, (x, w, h) => { x.fillStyle = '#9a9488'; x.fillRect(0, 0, w, h); for (let i = 0; i < 500; i++) { x.fillStyle = `rgba(0,0,0,${0.03 + (i % 5) * 0.012})`; x.fillRect((i * 53) % w, (i * 29) % h, 4, 4); } x.strokeStyle = '#6a6458'; x.lineWidth = 10; x.strokeRect(14, 14, w - 28, h - 28); x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 78px "Special Elite"'; x.fillStyle = '#3a362e'; x.fillText('ELI MARROW', w / 2, h * 0.4); x.font = '700 60px "Special Elite"'; x.fillText('1925', w / 2, h * 0.72); });
+  const plaqueTex = canvasTex(512, 320, (x, w, h) => { x.fillStyle = '#9a9488'; x.fillRect(0, 0, w, h); for (let i = 0; i < 500; i++) { x.fillStyle = `rgba(0,0,0,${0.03 + (i % 5) * 0.012})`; x.fillRect((i * 53) % w, (i * 29) % h, 4, 4); } x.strokeStyle = '#6a6458'; x.lineWidth = 10; x.strokeRect(14, 14, w - 28, h - 28); x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 60px "Special Elite", serif'; x.fillStyle = '#3a362e'; x.fillText('ELI MARROW', w / 2, h * 0.4, w - 60); x.font = '700 56px "Special Elite", serif'; x.fillText('1925', w / 2, h * 0.72); });
   const plaque = mesh(new THREE.PlaneGeometry(1.6, 1.0), new THREE.MeshStandardMaterial({ map: plaqueTex, roughness: 0.95 }), 1.6, 2.1, -10.47, sq, { cast: false });
   const doorFrame = mesh(box(0.95, 1.15, 0.06), std('#5a4a3a'), 1.6, 0.66, -10.47, sq);
   const hinge = new THREE.Group(); hinge.position.set(1.6 - 0.4, 0.66, -10.43); sq.add(hinge);
