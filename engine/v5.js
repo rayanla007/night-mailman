@@ -1,6 +1,6 @@
 // Story kit additions: Battery Town (charging station), shared by later stories.
 import * as THREE from 'three';
-import { std, basic, rb, box, mesh, canvasTex } from './props.js';
+import { std, basic, rb, box, mesh, canvasTex, makeTower } from './props.js';
 
 export function buildStation(scene, W) {
   const g = new THREE.Group(); g.name = 'station'; g.position.set(-1000, 0, 0); scene.add(g); W.sets.station = g;
@@ -113,4 +113,55 @@ export function buildWeatherKit(scene, W) {
   // rainbow
   const rb_ = new THREE.Group(); ['#ff3b4e', '#ff9b4a', '#ffd23a', '#40c463', '#3fa9ff', '#9b5cff'].forEach((c, i) => mesh(new THREE.TorusGeometry(40 - i * 1.6, 0.8, 8, 64, Math.PI), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.8, fog: false }), 0, 0, 0, rb_, { cast: false }));
   W.props.rainbow = { group: rb_ };
+}
+
+// ---------- Floor Zero: lobby with elevators + elevator car ----------
+export function buildElevatorKit(scene, W) {
+  const mk = (key, o) => { const c = makeCharacter(o); W.chars[key] = c; scene.add(c.group); return c; };
+  mk('grandma', { name: 'Grandma', skin: '#f1c09a', shirt: '#9b5cff', print: 'cardigan', pants: '#565a7d', shoes: '#2b1d16', hair: 'mia', hairColor: '#e6e6ea', scale: 0.95, faceOpts: { glasses: true } });
+  mk('manager', { name: 'Manager', skin: '#e9b48d', shirt: '#1e1e2a', print: 'jacket', pants: '#1e1e2a', shoes: '#111', hair: 'crowd1', hairColor: '#2b1a10', scale: 1.08 });
+  if (!W.chars.ryan2) mk('ryan2', { name: 'Ryan2', skin: '#f1c09a', shirt: '#8a5cff', print: 'hoodie', faceOpts: { freckles: true }, pants: '#2f5fe0', shoes: '#ffffff', hair: 'clumps', hairColor: '#3b2416', scale: 0.92 });
+  // the one building everyone lives in (in the square set, far behind the clock tower)
+  if (W.sets.square) { const T = makeTower(30, 170, 30, '#dfe7f2'); T.position.set(0, 0, -70); W.sets.square.add(T); }
+  // lobby (x = -1200): elevators on the back wall z=-6 at x = -4, 0, 4 (old one at x=4)
+  const g = new THREE.Group(); g.name = 'lobby'; g.position.set(-1200, 0, 0); scene.add(g); W.sets.lobby = g;
+  const tile = canvasTex(256, 256, (x, w, h) => { for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { x.fillStyle = (i + j) % 2 ? '#e9e1d2' : '#d7ccb8'; x.fillRect(i * 64, j * 64, 64, 64); } });
+  tile.wrapS = tile.wrapT = THREE.RepeatWrapping; tile.repeat.set(6, 6);
+  mesh(box(16, 0.2, 14), new THREE.MeshStandardMaterial({ map: tile, roughness: 0.4 }), 0, -0.1, 0, g, { cast: false });
+  mesh(new THREE.PlaneGeometry(3, 12), std('#b3223c', { roughness: 1 }), 0, 0.01, 1, g, { cast: false }).rotation.x = -Math.PI / 2;
+  const wall = std('#f3e6c8', { roughness: 0.85 });
+  mesh(box(16, 5, 0.2), wall, 0, 2.5, -6.1, g); mesh(box(0.2, 5, 14), wall, -8, 2.5, 0, g); mesh(box(0.2, 5, 14), wall, 8, 2.5, 0, g); mesh(box(16, 0.2, 14), std('#ffffff'), 0, 5, 0, g); mesh(box(16, 5, 0.2), wall, 0, 2.5, 7, g);
+  W.lobbyDoors = [];
+  for (const [x, old] of [[-4, false], [0, false], [4, true]]) {
+    const fr = std(old ? '#7a6a4f' : '#c9a24a', { metalness: 0.6, roughness: 0.35 });
+    mesh(box(2.4, 3.0, 0.1), fr, x, 1.5, -5.98, g);
+    const dm = std(old ? '#8f8a80' : '#d8dde6', { metalness: 0.7, roughness: 0.3 });
+    const L = mesh(box(0.98, 2.6, 0.06), dm, x - 0.5, 1.3, -5.9, g), R = mesh(box(0.98, 2.6, 0.06), dm, x + 0.5, 1.3, -5.9, g);
+    const ind = canvasTex(256, 96, () => {}); mesh(new THREE.PlaneGeometry(1.0, 0.36), new THREE.MeshBasicMaterial({ map: ind }), x, 3.3, -5.92, g, { cast: false });
+    W.lobbyDoors.push({ L, R, x, ind, setOpen(k) { L.position.x = x - 0.5 - 0.95 * k; R.position.x = x + 0.5 + 0.95 * k; }, setFloor(t, col = '#ffb020') { const c = ind.userData.canvas, q = c.getContext('2d'); q.fillStyle = '#0b0b10'; q.fillRect(0, 0, 256, 96); q.fillStyle = col; q.font = 'bold 72px "DejaVu Sans Mono", monospace'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText(t, 128, 52); ind.needsUpdate = true; } });
+  }
+  W.lobbyDoors.forEach((d, i) => d.setFloor(['54', '2', '?'][i], i === 2 ? '#ff3b4e' : '#ffb020'));
+  for (const x of [-7, 7]) { mesh(new THREE.CylinderGeometry(0.4, 0.3, 0.8, 12), std('#b07a4f'), x, 0.4, -4.5, g); mesh(new THREE.IcosahedronGeometry(0.9, 1), std('#2fae6a', { flatShading: true }), x, 1.6, -4.5, g); }
+  mesh(rb(3.5, 1.1, 1.0, 0.04), std('#8b5a2b'), -4.5, 0.55, 2.5, g);
+  const ll = new THREE.PointLight('#fff1d6', 5, 0, 1.3); ll.position.set(0, 4.5, 0); g.add(ll); W.lobbyLight = ll;
+  // elevator car (x = -1300): interior 2.4 wide, 2.6 tall, doors at z=+1.2 facing -z...
+  const e = new THREE.Group(); e.name = 'elevator'; e.position.set(-1300, 0, 0); scene.add(e); W.sets.elevator = e;
+  const metal = std('#b9c0cc', { metalness: 0.6, roughness: 0.35 });
+  mesh(box(2.6, 0.1, 2.6), std('#3a3530'), 0, -0.05, 0, e, { cast: false }); mesh(box(2.6, 0.1, 2.6), std('#f4f4f4', { emissive: '#fff4dc', emissiveIntensity: 0.6 }), 0, 2.65, 0, e);
+  mesh(box(0.1, 2.7, 2.6), metal, -1.25, 1.35, 0, e); mesh(box(0.1, 2.7, 2.6), metal, 1.25, 1.35, 0, e); mesh(box(2.6, 2.7, 0.1), metal, 0, 1.35, -1.25, e);
+  mesh(box(2.4, 0.06, 0.06), std('#c9a24a', { metalness: 0.7 }), 0, 0.95, -1.18, e);
+  mesh(box(6, 3.4, 0.2), std('#f3e6c8'), 0, 1.7, 3.2, e); mesh(box(6, 0.1, 2.2), std('#d7ccb8'), 0, -0.05, 2.2, e, { cast: false });
+  const dl = std('#9aa1ad', { metalness: 0.7, roughness: 0.3 });
+  const eL = mesh(box(1.2, 2.6, 0.06), dl, -0.6, 1.3, 1.25, e), eR = mesh(box(1.2, 2.6, 0.06), dl, 0.6, 1.3, 1.25, e);
+  // button panel on the right wall (x=1.19, facing -x)
+  const pt = canvasTex(256, 640, (x, w, h) => { x.fillStyle = '#2a2d36'; x.fillRect(0, 0, w, h); x.font = 'bold 30px "DejaVu Sans Mono", monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    const nums = [100, 96, 92, 88, 84, 80, 76, 72, 68, 64, 60, 56, 52, 48, 44, 40, 36, 32, 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    nums.forEach((n, k) => { const r = Math.floor(k / 4), c = k % 4; const cx = 40 + c * 58, cy = 30 + r * 58; x.fillStyle = '#c9ced8'; x.beginPath(); x.arc(cx, cy, 24, 0, 7); x.fill(); x.fillStyle = '#1a1a22'; x.font = `bold ${n > 99 ? 22 : 30}px "DejaVu Sans Mono", monospace`; x.fillText(String(n), cx, cy + 1); });
+    x.fillStyle = '#ff3b4e'; x.beginPath(); x.arc(128, 590, 34, 0, 7); x.fill(); x.fillStyle = '#ffffff'; x.font = 'bold 44px "DejaVu Sans Mono", monospace'; x.fillText('0', 128, 592); });
+  const panel = mesh(new THREE.PlaneGeometry(0.42, 1.05), new THREE.MeshStandardMaterial({ map: pt, emissive: '#ffffff', emissiveMap: pt, emissiveIntensity: 0.25 }), 1.19, 1.3, 0.6, e, { cast: false }); panel.rotation.y = -Math.PI / 2;
+  W.zeroButton = [1.18, 0.88, 0.6];
+  const dt = canvasTex(256, 96, () => {}); const disp = mesh(new THREE.PlaneGeometry(0.7, 0.26), new THREE.MeshBasicMaterial({ map: dt }), 0, 2.4, -1.19, e, { cast: false });
+  const el = new THREE.PointLight('#fff1d6', 3, 0, 1.3); el.position.set(0, 2.4, 0); e.add(el); W.elevLight = el;
+  W.elevator = { setOpen(k) { eL.position.x = -0.6 - 1.15 * k; eR.position.x = 0.6 + 1.15 * k; }, setFloor(t, col = '#ffb020') { const c = dt.userData.canvas, q = c.getContext('2d'); q.fillStyle = '#0b0b10'; q.fillRect(0, 0, 256, 96); q.fillStyle = col; q.font = 'bold 72px "DejaVu Sans Mono", monospace'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText(t, 128, 52); dt.needsUpdate = true; } };
+  W.elevator.setFloor('2');
 }

@@ -11,7 +11,7 @@ const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 import { buildV4 } from './v4.js';
-import { buildStation, buildExtras, buildMirrorKit, buildWeatherKit } from './v5.js';
+import { buildStation, buildExtras, buildMirrorKit, buildWeatherKit, buildElevatorKit } from './v5.js';
 Object.assign(PRESETS, PRESETS_V3);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
@@ -64,6 +64,7 @@ export async function boot() {
   if (kit.length) buildExtras(scene, W, kit);
   if (kit.includes('mirror')) buildMirrorKit(scene, W);
   if (kit.includes('weather')) buildWeatherKit(scene, W);
+  if (kit.includes('elevator')) buildElevatorKit(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(RW, RH, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
@@ -139,6 +140,7 @@ export async function boot() {
       if (W.__blobs) W.__blobs.forEach(b => (b.visible = false));
       for (const k of ['remote', 'snow', 'tornado', 'rainbow']) if (W.props[k]) W.props[k].group.removeFromParent();
       W.frozen = false;
+      if (W.elevator) { W.elevator.setOpen(0); W.elevator.setFloor('2'); W.lobbyDoors.forEach((d, i) => { d.setOpen(0); d.setFloor(['54', '2', '?'][i], i === 2 ? '#ff3b4e' : '#ffb020'); }); W.elevLight.color.set('#fff1d6'); W.lobbyLight.color.set('#fff1d6'); }
       if (W.props.mirror) { W.props.mirror.group.removeFromParent(); W.props.mirror.setBlank(false); W.props.mirror.setRipple(0, 0); W.props.diningGlass.pane.scale.set(1, 1, 1); W.props.diningGlass.mat.color.set('#cfe8ff'); }
       if (W.pods) { W.pods.forEach(p => p.setColor('#38e07b')); W.setStationScreen(['CHARGING', 'sleep well, citizens']); W.alarms.forEach(a => a.material.color.set('#552222')); W.stationAmb.color.set('#7fa8ff'); }
       if (W.v4) {
