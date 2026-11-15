@@ -11,7 +11,7 @@ const _q = new URLSearchParams(location.search); const HQ = _q.get('hq') !== '0'
 import { buildWorld, PRESETS } from './world.js';
 import { buildV3, PRESETS_V3 } from './v3.js';
 import { buildV4 } from './v4.js';
-import { buildStation, buildExtras } from './v5.js';
+import { buildStation, buildExtras, buildMirrorKit } from './v5.js';
 Object.assign(PRESETS, PRESETS_V3);
 const QS = new URLSearchParams(location.search);
 import { evalCamera, applyCamera } from './camera.js';
@@ -62,6 +62,7 @@ export async function boot() {
   if (shotMod.v4 || kit.includes('cast4')) buildV4(scene, W, { buttons: !!shotMod.v4 });
   if (kit.includes('station')) buildStation(scene, W);
   if (kit.length) buildExtras(scene, W, kit);
+  if (kit.includes('mirror')) buildMirrorKit(scene, W);
   W.Poses = Poses; W.THREE = THREE; W.GLASS_LIT = GLASS_LIT; W.GLASS_DARKM = GLASS_DARK;
 
   const rt = new THREE.WebGLRenderTarget(RW, RH, { type: THREE.HalfFloatType, samples: HQ ? MSAA : 0 });
@@ -133,6 +134,7 @@ export async function boot() {
       W.fountain.jet.scale.set(1, 1, 1); W.fountain.water.visible = true; W.siren.light.visible = true;
       for (const k of ['balloon', 'keyProp', 'neckKey']) { const o = W.props[k].group || W.props[k]; o.removeFromParent(); o.visible = true; o.rotation.set(0, 0, 0); }
       if (W.__blobs) W.__blobs.forEach(b => (b.visible = false));
+      if (W.props.mirror) { W.props.mirror.group.removeFromParent(); W.props.mirror.setBlank(false); W.props.mirror.setRipple(0, 0); W.props.diningGlass.pane.scale.set(1, 1, 1); W.props.diningGlass.mat.color.set('#cfe8ff'); }
       if (W.pods) { W.pods.forEach(p => p.setColor('#38e07b')); W.setStationScreen(['CHARGING', 'sleep well, citizens']); W.alarms.forEach(a => a.material.color.set('#552222')); W.stationAmb.color.set('#7fa8ff'); }
       if (W.v4) {
         for (const c of [...Object.values(W.chars), ...W.crowd]) if (c.button) c.button.set('off');
@@ -289,6 +291,7 @@ export async function boot() {
   window.renderFrameBoth = (f) => { renderTime(f / FPS, { captions: false }); const clean = out.toDataURL('image/jpeg', 0.93); drawCaption(f / FPS); return [clean, out.toDataURL('image/jpeg', 0.93)]; };
   window.renderFrameJpeg = (f, captions = true) => { renderTime(f / FPS, { captions }); return out.toDataURL('image/jpeg', 0.93); };
   window.renderShotAt = (i, u) => { const st = timing.shots[i]; current = -1; renderTime(st.start + Math.min(st.dur - 1 / FPS, u * st.dur)); return out.toDataURL('image/jpeg', 0.9); };
+  window.__W = W;
   window.__ready = true;
 }
 
