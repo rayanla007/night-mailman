@@ -58,3 +58,23 @@ cut moves with it (use `dur:` to fix a length, or `extra:` to hold a shot for lo
   Lighting presets: `night`, `dusk`, `interiorNight`, `interiorDark`, `morning`, `townFinal`.
 - **SFX types**: `tick`, `click`, `slide`, `steps`, `run`, `chime`, `whoosh`, `wind`, `silence`.
   `at` is seconds into the shot, `'u0.5'` (a fraction of the shot), or `'end-0.5'`.
+
+## Clip packs (stories 01–10)
+
+One clean clip per script line (no captions, voice or music), with extra length to trim to your own voiceover.
+
+| story | shot list | kit file |
+|---|---|---|
+| 01 Battery Town … 05 Floor Zero | `shots_s01.js` … `shots_s05.js` | `engine/v5.js` |
+| 06 Pet Rain | `shots_s06.js` | `engine/v6.js` (yard, falling pets, Pebble) |
+| 07 Shadow Shift | `shots_s07.js` | `engine/v7.js` (shadow crew, factory) |
+| 08 Name Swap | `shots_s08.js` | `engine/v8.js` (name tags, library, cemetery, dusty room) |
+| 09 Upside-Down Friday | `shots_s09.js` | `engine/v9.js` (flip props, cloud arms, windmill) |
+| 10 Lost & Found | `shots_s10.js` | `engine/v10.js` (warehouse aisle, sleeping kids) |
+
+```
+SHOTS=shots_s06.js TAG=s06 node tools/export_script.mjs
+NO_TTS=1 NO_MUSIC=1 EST_WPS=2.45 MIN_SHOT=1.8 TAG=s06 python3 tools/build_audio.py
+TAG=s06 SHOTS=shots_s06.js QS=rs=0.667 node tools/render.mjs clips   # -> out/s06/clips/NN.mp4 (resumes if interrupted)
+QS=rs=0.5 TAG=s06 SHOTS=shots_s06.js node tools/render.mjs check 3,7  # quick preview frames
+```
