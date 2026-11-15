@@ -4,3 +4,5 @@ tools/piper/
 out/check/
 build_*/
 out/*/check/
+out/*/clips/
+out/*/*_clips.zip
