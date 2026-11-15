@@ -58,13 +58,15 @@ if (mode === 'video') {
   for (const s of t.shots) {
     if (only.length && !only.includes(s.n)) continue;
     const f0 = Math.round(s.start * 30), f1 = Math.round((s.start + s.dur) * 30);
-    const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', '30', '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', '-r', '30', path.join(dir, String(s.n).padStart(2, '0') + '.mp4')], { stdio: ['pipe', 'inherit', 'inherit'] });
+    const outF = path.join(dir, String(s.n).padStart(2, '0') + '.mp4'), partF = outF.replace(/\.mp4$/, '.part.mp4');
+    if (!only.length && fs.existsSync(outF)) { console.log(`clip ${s.n} exists, skipping`); continue; } // resume after a restart
+    const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', '30', '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', '-r', '30', partF], { stdio: ['pipe', 'inherit', 'inherit'] });
     for (let f = f0; f < f1; f++) {
       const [clean] = await page.evaluate(f => window.renderFrameBoth(f), f);
       if (!ff.stdin.write(b64(clean))) await new Promise(r => ff.stdin.once('drain', r));
       done++;
     }
-    ff.stdin.end(); await new Promise(r => ff.on('close', r));
+    ff.stdin.end(); await new Promise(r => ff.on('close', r)); fs.renameSync(partF, outF);
     console.log(`clip ${s.n}/${t.shots.length}  ${((Date.now() - t0) / 1000 / done).toFixed(2)}s/frame`);
   }
 } else if (mode === 'both') {
